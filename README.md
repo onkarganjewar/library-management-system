@@ -46,7 +46,7 @@ A librarian must be able to manage the catalog of the books.
    4. A book cannot be deleted if it’s checked out by a patron.
    5. Deleting a book also removes the waiting list for it, if there is any.
 
-9. *_[Bonus Feature]_* You can integrate with external APIs to simplify the input the book info based on things like ISBN.
+9. __[Bonus Feature]__ You can integrate with external APIs to simplify the input the book info based on things like ISBN.
 
 ### Circulation
 
