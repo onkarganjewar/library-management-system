@@ -1,5 +1,5 @@
-# library-management-system
-## CMPE 275 Section 2 Fall 2016
+# CMPE 275 Section 2 Fall 2016
+
 ## Term Project
 
 
