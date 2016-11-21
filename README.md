@@ -87,7 +87,7 @@ This project is group based, with group size up to four people. Once the project
 
 ## Source Code Management
 
-You are recommended to use a Source Control Management (SCM) system to manage your team’s source code. This can be a private Bitbucket repository or your local git. During the grading of the term project, *you may be asked to provide commit history or any other document to help evaluate each team member’s contribution.*
+__You are recommended to use a Source Control Management (SCM) system to manage your team’s source code.__ This can be a **private** Bitbucket repository or your local git. During the grading of the term project, *you may be asked to provide commit history or any other document to help evaluate each team member’s contribution.*
 
 ## Cheating Policy
 
@@ -137,15 +137,15 @@ You are recommended not to exceed 15 pages, but you will not be penalized just b
 
 ### Project App (15 regular points + 2 bonus points)
 
-__Note: the instruction for submission is _still subject to change_.__
+Note: the instruction for submission is _still subject to change_.
 
-Your must submit all your source code / resource files through Canvas
-Features correctness, stability, performance, choice of technology and implementation are worth 12 points
-User interface and user experience are worth 3 points
-The bonus features are worth 2 points
-You need to keep your app live for at least a week before we finish grading
-README.TXT, including
-The names, email IDs, and students IDs of the members
-The URL to access your app, and the admin account username/password, so that the user can test the provisioning features
-Any other instruction necessary for the TA to grade the app
-Build instructions
+1. Your must submit all your source code / resource files through Canvas
+2. Features correctness, stability, performance, choice of technology and implementation are worth 12 points
+3. User interface and user experience are worth 3 points
+4. The bonus features are worth 2 points
+5. You need to keep your app live for at least a week before we finish grading
+6. README.TXT, including
+  1. The names, email IDs, and students IDs of the members
+  2. The URL to access your app, and the admin account username/password, so that the user can test the provisioning features.
+  3. Any other instruction necessary for the TA to grade the app. 
+  4. Build instructions
