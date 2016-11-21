@@ -1,6 +1,6 @@
 # library-management-system
-# CMPE 275 Section 2 Fall 2016
-# Term Project
+## CMPE 275 Section 2 Fall 2016
+## Term Project
 
 
 In this project you will build a Library Management System (LMS) for a university. This must be a web app hosted in the cloud. The primary language you use for server implementation must be Java. You do not have to use Spring, but you need to exercise the principles, patterns, and methodologies that you learn in the class, such as DI, AOP, MVC, ORM, and transactions. You must use either a relational database, or Datastore if you choose AppEngine.
@@ -15,6 +15,7 @@ This app manages many aspects of a university library system, including catalogi
 ### Users and Authentication
 
 There are two roles of users, librarian and patron.
+
 1. A librarian manages cataloging, and can assist circulation as well.
 2. A patron is a customer of the library. He can search for books, borrow and returns books.
 3. For simplicity, we allow any user with any email address to be able to create his account using an email as the username, and password of his choice. The user also needs to provide a university ID of 6 digits.
@@ -25,6 +26,7 @@ There are two roles of users, librarian and patron.
 ### Cataloging
 
 A librarian must be able to manage the catalog of the books.
+
 7. A book item contains at least the following properties
    1. Author
    2. Title
@@ -53,8 +55,11 @@ A librarian must be able to manage the catalog of the books.
    2. A book is due in 30 days from checking out.
    3. The checkout screen need to show the due date.
    4. A confirmation email is sent to the patron for each checkout transaction with the details, including the book info, the transaction date and time, and the due day.
+
 11. The total number of books a user can keep at any given time cannot exceed 10.
+
 12. If a book is due within 5 days, daily alerts will be sent to the patron; and the patron can renew the book for another 30 days before the book is overdue. A book can be renewed twice, which means a maximum of 90 days in total from checked out. If, however, there is a waiting list for the book, it can no longer be renewed.   
+
 13. A patron must be able to return up to 10 books in one transaction.
   1. Upon returning, an email confirmation should be sent to the patron with the detail of the transaction.
   2. If any book is overdue, a fine of $1 per day will be enforced.
@@ -65,6 +70,7 @@ A librarian must be able to manage the catalog of the books.
 ### Waiting list
 
 14. A patron can add himself to a waiting list if the book he is interested in is currently checked out by somebody else. There is no limit on how many people can be added to a waiting list, yet the order in the waiting is preserved. You cannot add the same person to the same list twice for the same book.
+
 15. When a book becomes available, the first person on the waiting list is notified about its availability, and the person is removed from the waiting list. The book is reserved for this person for three days, during which only this person can check out this book. After these three days, the reservation is cancelled, and the next person in the waiting list (if there is any) is notified about the availability, and a three-day reservation is created for him as well. So on and so forth.
 
 ### Testing assistance
@@ -72,7 +78,7 @@ A librarian must be able to manage the catalog of the books.
 16. For ease of testing and grading, you need to provide the capability for an librarian to set the current date and time for the app. This way it is easier to test features like due date and waiting lists.  This interface for setting the date and time must be positioned at the top right corner of your main UI pages, and the resulted date and time must be clearly displayed along with the time setting interface as well.
 
 ### Additional Bonus Features
-	**TBA**
+__TBA__
 
 
 ## Grouping
