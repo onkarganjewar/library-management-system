@@ -161,14 +161,6 @@
 			<version>1.5.5</version>
 		</dependency>
 
-		<!-- Spring data jpa repository -->
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jpa</artifactId>
-			<version>${spring-data-jpa.version}</version>
-		</dependency>
-
-
 		<!-- Testing -->
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-test -->
 		<dependency>
