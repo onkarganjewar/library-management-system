@@ -29,10 +29,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 
+import edu.sjsu.cmpe275.project.email.OnRegistrationCompleteEvent;
 import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
-import edu.sjsu.cmpe275.project.registration.OnRegistrationCompleteEvent;
 import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 

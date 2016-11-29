@@ -1,4 +1,4 @@
-package edu.sjsu.cmpe275.project.registration;
+package edu.sjsu.cmpe275.project.email;
 
 import java.util.UUID;
 

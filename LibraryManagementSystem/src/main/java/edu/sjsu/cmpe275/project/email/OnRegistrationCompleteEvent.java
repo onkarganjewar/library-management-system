@@ -1,4 +1,4 @@
-package edu.sjsu.cmpe275.project.registration;
+package edu.sjsu.cmpe275.project.email;
 
 import java.util.Locale;
 import org.springframework.context.ApplicationEvent;
