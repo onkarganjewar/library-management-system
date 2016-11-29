@@ -174,12 +174,6 @@ public class AppController {
 		boolean adminExists = false;
 		boolean userExists = false;
 		List<UserProfile> allProfiles = new ArrayList<UserProfile>();
-		User user = new User();
-		user.setEmail("email");
-		user.setFirstName("firstName");
-		user.setLastName("LastName");
-		user.setPassword("password");
-		user.setSsoId("sammy");
 
 		// Populate user profiles if not already present
 		allProfiles = userProfileService.findAll();
@@ -202,14 +196,6 @@ public class AppController {
 		usp.setType("USER");
 		if (!userExists)
 			userProfileService.saveProfile(usp);
-
-//		Set<UserProfile> userProfiles = new HashSet<UserProfile>();
-//		UserProfile returnProfile = new UserProfile();
-//		returnProfile = userProfileService.findByType("ADMIN");
-//		userProfiles.add(returnProfile);
-//		user.setUserProfiles(userProfiles);
-
-//		userService.saveUser(user);
 
 		if (isCurrentAuthenticationAnonymous()) {
 			return "login";

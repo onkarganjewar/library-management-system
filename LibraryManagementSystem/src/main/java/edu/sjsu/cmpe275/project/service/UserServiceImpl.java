@@ -35,36 +35,31 @@ public class UserServiceImpl implements UserService {
 	public static final String TOKEN_EXPIRED = "expired";
 	public static final String TOKEN_VALID = "valid";
 
-	public static String QR_PREFIX = "https://chart.googleapis.com/chart?chs=200x200&chld=M%%7C0&cht=qr&chl=";
-	public static String APP_NAME = "SpringRegistration";
-
+	@Override
 	public User findById(int id) {
 		return dao.findById(id);
 	}
 
+	@Override
 	public User findByEmail(String email) {
 		User user = dao.findByEmail(email);
 		return user;
 	}
 
+	@Override
 	public void saveUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		dao.save(user);
 	}
 
-	/*
-	 * Since the method is running with Transaction, No need to call hibernate
-	 * update explicitly. Just fetch the entity from db and update it with
-	 * proper values within transaction. It will be updated in db once
-	 * transaction ends.
-	 */
+	@Override
 	public void updateUser(User user) {
 		User entity = dao.findById(user.getId());
 		if (entity != null) {
-			entity.setSsoId(user.getSsoId());
 			if (!user.getPassword().equals(entity.getPassword())) {
 				entity.setPassword(passwordEncoder.encode(user.getPassword()));
 			}
+			entity.setuId(user.getuId());
 			entity.setFirstName(user.getFirstName());
 			entity.setLastName(user.getLastName());
 			entity.setEmail(user.getEmail());
@@ -73,6 +68,7 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	@Override
 	public List<User> findAllUsers() {
 		return dao.findAllUsers();
 	}
