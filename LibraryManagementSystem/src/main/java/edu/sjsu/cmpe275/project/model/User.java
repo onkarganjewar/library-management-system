@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import edu.sjsu.cmpe275.project.validation.UniqueEmail;
 import edu.sjsu.cmpe275.project.validation.ValidUnivId;
 
 /**
@@ -47,6 +48,7 @@ public class User implements Serializable {
 
 	@NotEmpty
 	@Email
+	@UniqueEmail
 	@Column(name = "EMAIL", unique = true, nullable = false)
 	private String email;
 	
