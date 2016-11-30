@@ -14,6 +14,7 @@
 	<div class="generic-container">
 	<div class="authbar">
 		<span>Dear <strong>${loggedinuser}</strong>, Welcome to SJSU L-M-S.</span> <span class="floatRight">
+		</span>
 		<h5>We have sent you the confirmation link. Please verify your email in order to access your account</h5>
 	</div>
 		

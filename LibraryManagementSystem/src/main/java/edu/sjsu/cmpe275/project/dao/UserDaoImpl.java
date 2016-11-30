@@ -57,4 +57,19 @@ public class UserDaoImpl extends AbstractDao<Integer, User> implements UserDao {
 		persist(user);
 	}
 
+	/**
+	 * Retrieves the user by the given university Id.
+	 */
+	@Override
+	public User findByUnivId(String uId) {
+
+		Criteria crit = createEntityCriteria();
+		crit.add(Restrictions.eq("uId", uId));
+		User user = (User) crit.uniqueResult();
+		if (user != null) {
+			Hibernate.initialize(user.getUserProfiles());
+			logger.info("University Id : {}", user.getuId());
+		}
+		return user;
+	}
 }

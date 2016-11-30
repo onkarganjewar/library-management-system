@@ -49,12 +49,12 @@ public class User implements Serializable {
 	@NotEmpty
 	@Email
 	@UniqueEmail
-	@Column(name = "EMAIL", unique = true, nullable = false)
+	@Column(name = "EMAIL", nullable = false)
 	private String email;
 	
 	@NotEmpty
 	@ValidUnivId
-	@Column(name = "UNIVERSITY_ID", unique = true, nullable = false)
+	@Column(name = "UNIVERSITY_ID", nullable = false)
 	private String uId;
 
 	@NotEmpty

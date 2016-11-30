@@ -52,6 +52,7 @@ public class HibernateConfiguration {
 		properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
 		properties.put("hibernate.format_sql", environment.getRequiredProperty("hibernate.format_sql"));
 		properties.setProperty("hibernate.hbm2ddl.auto", environment.getProperty("hibernate.hbm2ddl.auto"));
+		properties.setProperty("javax.persistence.validation.mode", environment.getProperty("javax.persistence.validation.mode"));
 		return properties;
 	}
 

@@ -35,6 +35,7 @@ import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
 import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
+import edu.sjsu.cmpe275.project.validation.UserValidator;
 
 /**
  * @author Onkar Ganjewar
@@ -64,6 +65,9 @@ public class AppController {
 
 	@Autowired
 	AuthenticationTrustResolver authenticationTrustResolver;
+
+	@Autowired
+	private UserValidator customValidator;
 
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public String adminPage(ModelMap model) {
@@ -105,10 +109,11 @@ public class AppController {
 	public String signUp_POST(@Valid User user, BindingResult result, ModelMap model,
 			final HttpServletRequest request) {
 
+		customValidator.validate(user, result);
 		if (result.hasErrors()) {
 			return "signup";
 		}
-
+		
 		userService.saveUser(user);
 		eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), getAppUrl(request)));
 
