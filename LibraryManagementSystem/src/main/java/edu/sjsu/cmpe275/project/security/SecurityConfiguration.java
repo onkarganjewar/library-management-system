@@ -51,7 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/", "/list")
 				.access("hasRole('USER') or hasRole('ADMIN')")
 				.antMatchers("/newuser/**", "/delete-user-*").access("hasRole('ADMIN')").antMatchers("/edit-user-*")
-				.access("hasRole('ADMIN') or hasRole('DBA')").and().formLogin().loginPage("/login")
+				.access("hasRole('ADMIN')").and().formLogin().loginPage("/login")
 				.loginProcessingUrl("/login").successHandler(customSuccessHandler).failureHandler(authenticationFailureHandler)
 				.usernameParameter("email").passwordParameter("password").and()
 				.rememberMe().rememberMeParameter("remember-me").tokenRepository(tokenRepository)
