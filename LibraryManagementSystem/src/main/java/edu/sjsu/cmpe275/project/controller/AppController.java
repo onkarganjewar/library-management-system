@@ -2,8 +2,10 @@ package edu.sjsu.cmpe275.project.controller;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Future;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,10 +31,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 
-import edu.sjsu.cmpe275.project.email.OnRegistrationCompleteEvent;
 import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
+import edu.sjsu.cmpe275.project.notification.CustomMailSender;
 import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
@@ -48,9 +50,12 @@ public class AppController {
 
 	@Autowired
 	UserService userService;
-
+	
 	@Autowired
-	private ApplicationEventPublisher eventPublisher;
+	CustomMailSender mailSender;
+
+//	@Autowired
+//	private ApplicationEventPublisher eventPublisher;
 
 	@Autowired
 	UserProfileService userProfileService;
@@ -115,7 +120,24 @@ public class AppController {
 		}
 		
 		userService.saveUser(user);
-		eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), getAppUrl(request)));
+		
+		long startTime = System.currentTimeMillis();
+		System.out.println("Before Execute method asynchronously. " + Thread.currentThread().getName());
+		
+		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
+
+        try {
+			futures.add(mailSender.sendMail(user,getAppUrl(request)));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+//		eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), getAppUrl(request)));
+
+    	long endTime = System.currentTimeMillis();
+
+		System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
 		model.addAttribute("success",
 				"User " + user.getFirstName() + " " + user.getLastName() + " registered successfully");

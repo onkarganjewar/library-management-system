@@ -15,6 +15,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -32,6 +33,7 @@ import edu.sjsu.cmpe275.project.converter.RoleToUserProfileConverter;
 
 @Configuration
 @EnableWebMvc
+@EnableAsync
 @ComponentScan(basePackages = "edu.sjsu.cmpe275.project")
 @PropertySource(value = { "classpath:email.properties" })
 public class AppConfig extends WebMvcConfigurerAdapter{
