@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,12 @@ import edu.sjsu.cmpe275.project.model.User;
 
 /**
  * @author Onkar Ganjewar
+ */
+
+/**
+ * 
+ * @author Shreya Prabhu
+ *
  */
 
 @Repository("bookDao")
@@ -59,6 +66,15 @@ public class BookDaoImpl extends AbstractDao<Integer, Book> implements BookDao {
 		crit.add(Restrictions.eq("id", id));
 		Book user = (Book)crit.uniqueResult();
 		delete(user);		
+	}
+
+	@Override
+	public List<Book> findAllBooks() {
+		// TODO Auto-generated method stub
+		Criteria criteria = createEntityCriteria().addOrder(Order.asc("id"));
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);//To avoid duplicates.
+		List<Book> books = (List<Book>) criteria.list();
+		return books;
 	}
 
 }
