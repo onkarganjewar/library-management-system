@@ -38,10 +38,20 @@ import edu.sjsu.cmpe275.project.notification.CustomMailSender;
 import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
+import edu.sjsu.cmpe275.project.dao.BookCopyDao;
+import edu.sjsu.cmpe275.project.dao.BookDao;
+import edu.sjsu.cmpe275.project.model.Book;
+import edu.sjsu.cmpe275.project.model.BookCopy;
+
 
 /**
  * @author Onkar Ganjewar
  * 
+ */
+/**
+ * 
+ * @author Shreya Prabhu
+ *
  */
 @Controller
 @RequestMapping("/")
@@ -60,6 +70,9 @@ public class AppController {
 	@Autowired
 	UserProfileService userProfileService;
 
+	@Autowired
+	BookDao bookDao;
+	
 	HttpSession session;
 
 	@Autowired
@@ -74,9 +87,13 @@ public class AppController {
 	@Autowired
 	private UserValidator customValidator;
 
+	@Autowired
+	private BookCopyDao bookCopyDao;
+
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public String adminPage(ModelMap model) {
-		model.addAttribute("user", getPrincipal());
+		List<Book> books=bookDao.findAllBooks();
+		model.addAttribute("books",books);
 		return "admin";
 	}
 
@@ -260,6 +277,26 @@ public class AppController {
 			userName = principal.toString();
 		}
 		return userName;
+	}
+	
+	@RequestMapping(value = "/newBook", method = RequestMethod.GET)
+	public String addNewBookPage(ModelMap model) {
+		Book books=new Book();
+		model.addAttribute("book",books);
+		return "newBook";
+	}
+	
+	@RequestMapping(value = { "/newBook" }, method = RequestMethod.POST)
+	public String newBook_POST(Book book, BindingResult result, ModelMap model,
+			final HttpServletRequest request) {
+
+		
+		bookDao.save(book);
+		BookCopy bookCopy = new BookCopy();
+		bookCopy.setBooks(book);
+		bookCopyDao.save(bookCopy);
+
+		return "redirect:/admin";
 	}
 
 	/**
