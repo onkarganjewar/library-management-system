@@ -52,10 +52,6 @@ import edu.sjsu.cmpe275.project.model.BookCopy;
 
 /**
  * @author Onkar Ganjewar
- * 
- */
-/**
- * 
  * @author Shreya Prabhu
  *
  */
@@ -295,14 +291,30 @@ public class AppController {
 	
 	@RequestMapping(value = { "/newBook" }, method = RequestMethod.POST)
 	public String newBook_POST(Book book, BindingResult result, ModelMap model,
-			final HttpServletRequest request) {
+			final HttpServletRequest request, @ModelAttribute("copies") String copy) {
 
-		
+		boolean NaN = false;
+		int copies=0;
+		// Check the input no of copies
+		try {
+			copies = Integer.parseInt(copy);	
+		} catch (NumberFormatException e) {
+			// If not a valid number or null string, then create only one copy by default
+			NaN = true;
+			BookCopy bookCopy = new BookCopy();
+			bookCopy.setBooks(book);
+			bookCopyDao.save(bookCopy);
+		}
 		bookDao.save(book);
-		BookCopy bookCopy = new BookCopy();
-		bookCopy.setBooks(book);
-		bookCopyDao.save(bookCopy);
 
+		if(!NaN) {
+			// If a valid number then create the specified number of copies
+			for (int i=0 ; i<copies; i++) {
+				BookCopy bookCopy = new BookCopy();
+				bookCopy.setBooks(book);
+				bookCopyDao.save(bookCopy);
+			}
+		}
 		return "redirect:/admin";
 	}
 

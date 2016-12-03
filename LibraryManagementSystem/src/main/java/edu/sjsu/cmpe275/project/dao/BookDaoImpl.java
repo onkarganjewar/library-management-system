@@ -15,10 +15,6 @@ import edu.sjsu.cmpe275.project.model.User;
 
 /**
  * @author Onkar Ganjewar
- */
-
-/**
- * 
  * @author Shreya Prabhu
  *
  */
