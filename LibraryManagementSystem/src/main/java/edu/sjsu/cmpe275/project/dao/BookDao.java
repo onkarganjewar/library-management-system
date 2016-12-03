@@ -3,6 +3,9 @@
  */
 package edu.sjsu.cmpe275.project.dao;
 
+
+import java.util.List;
+
 import edu.sjsu.cmpe275.project.model.Book;
 
 /**
@@ -13,4 +16,5 @@ public interface BookDao {
 	void save(Book book);
 	Book findByTitle(String title);
 	void deleteById(int id);
+	List<Book> findAllBooks();
 }
