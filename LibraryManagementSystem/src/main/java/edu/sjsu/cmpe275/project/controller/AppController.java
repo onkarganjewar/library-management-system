@@ -1,10 +1,14 @@
 package edu.sjsu.cmpe275.project.controller;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.concurrent.Future;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -50,12 +56,12 @@ public class AppController {
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	CustomMailSender mailSender;
 
-//	@Autowired
-//	private ApplicationEventPublisher eventPublisher;
+	// @Autowired
+	// private ApplicationEventPublisher eventPublisher;
 
 	@Autowired
 	UserProfileService userProfileService;
@@ -118,24 +124,25 @@ public class AppController {
 		if (result.hasErrors()) {
 			return "signup";
 		}
-		
+
 		userService.saveUser(user);
-		
+
 		long startTime = System.currentTimeMillis();
 		System.out.println("Before Execute method asynchronously. " + Thread.currentThread().getName());
-		
+
 		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
 
-        try {
-			futures.add(mailSender.sendMail(user,getAppUrl(request)));
+		try {
+			futures.add(mailSender.sendMail(user, getAppUrl(request)));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-//		eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), getAppUrl(request)));
 
-    	long endTime = System.currentTimeMillis();
+		// eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user,
+		// request.getLocale(), getAppUrl(request)));
+
+		long endTime = System.currentTimeMillis();
 
 		System.out.println("That took " + (endTime - startTime) + " milliseconds");
 
@@ -269,5 +276,45 @@ public class AppController {
 	private boolean isCurrentAuthenticationAnonymous() {
 		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return authenticationTrustResolver.isAnonymous(authentication);
+	}
+
+	@RequestMapping(value = "/bookInfo", method = RequestMethod.GET)
+	public String getBookInfo(@RequestParam("isbn") String isbn) throws Exception {
+		
+		URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
+
+		// read from the URL
+		Scanner scan = new Scanner(url.openStream());
+		String str = new String();
+		while (scan.hasNext())
+			str += scan.nextLine();
+		scan.close();
+
+		// build a JSON object
+		JSONObject obj = new JSONObject(str);
+
+		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
+		System.out.println("Title = "+title);
+
+		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
+		System.out.println("Publisher = "+publisher);
+
+		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
+				.get("publishedDate");
+		System.out.println("Date published = "+publishDate);
+
+		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
+		int limit = arr.length();
+		List<String> authorsList = new ArrayList<String>();
+
+		for (int i = 0; i < limit; i++) {
+			Object val = arr.get(i);
+//			System.out.println(val);
+			authorsList.add(val.toString());
+		}
+		for (String string : authorsList) {
+			System.out.println("Authors name = " + string);
+		}
+		return null;
 	}
 }

@@ -83,6 +83,13 @@ public class AppControllerTest {
         		.accept(MediaType.ALL)).andDo(print())
         		.andExpect(status().isOk()).andDo(print());
 	}
+	
+	@Test
+	public void GET_BookInfoTest() throws Exception {
+        this.springMvc.perform(get("/bookInfo").param("isbn", "1591472741")
+        		.accept(MediaType.ALL)).andDo(print())
+        		.andExpect(status().isOk()).andDo(print());
+	}
 
 	@Test
 	public void POST_SignUpTest() throws Exception {

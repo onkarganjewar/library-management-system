@@ -37,6 +37,9 @@
 		<guava.version>19.0</guava.version>
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<jackson.version>2.6.4</jackson.version>
+		
+		<!-- Json parser -->
+		<org.json.version>20160810</org.json.version>
 	</properties>
 
 	<dependencies>
@@ -187,6 +190,15 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
+
+		<!-- Json parser -->
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${org.json.version}</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<pluginManagement>
