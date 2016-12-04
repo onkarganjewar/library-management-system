@@ -1,7 +1,5 @@
 package edu.sjsu.cmpe275.project.controller;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,7 +17,6 @@ import javax.validation.Valid;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
@@ -42,11 +39,11 @@ import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
 import edu.sjsu.cmpe275.project.notification.CustomMailSender;
+import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
 import edu.sjsu.cmpe275.project.dao.BookCopyDao;
-import edu.sjsu.cmpe275.project.dao.BookDao;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
 
@@ -67,14 +64,11 @@ public class AppController {
 	@Autowired
 	CustomMailSender mailSender;
 
-	// @Autowired
-	// private ApplicationEventPublisher eventPublisher;
-
 	@Autowired
 	UserProfileService userProfileService;
 
 	@Autowired
-	BookDao bookDao;
+	BookService bookService;
 	
 	HttpSession session;
 
@@ -95,7 +89,7 @@ public class AppController {
 
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public String adminPage(ModelMap model) {
-		List<Book> books=bookDao.findAllBooks();
+		List<Book> books=bookService.findAllBooks();
 		model.addAttribute("books",books);
 		return "admin";
 	}
@@ -203,11 +197,6 @@ public class AppController {
 		return userProfileService.findAll();
 	}
 	
-//	@ModelAttribute("copies")
-//	public List<UserProfile> initializeProfiles() {
-//		return bookCopyDao.findByBook(book);
-//	}
-	
 	/**
 	 * This method handles Access-Denied redirect.
 	 */
@@ -311,7 +300,7 @@ public class AppController {
 			bookCopy.setBooks(book);
 			bookCopyDao.save(bookCopy);
 		}
-		bookDao.save(book);
+		bookService.saveBook(book);
 
 		if(!NaN) {
 			// If a valid number then create the specified number of copies
@@ -329,7 +318,7 @@ public class AppController {
      */
     @RequestMapping(value = { "/edit-book-{id}" }, method = RequestMethod.GET)
     public String editBook(@PathVariable String id , ModelMap model) {
-    	Book book= bookDao.findbyId(id);
+    	Book book= bookService.findById(id);
     	int copies = 10;
 //    	BookCopy returnCopy = bookCopyDao.findByBook(book);
 //    	returnCopy.getBooks();
@@ -412,7 +401,7 @@ public class AppController {
 	@RequestMapping(value = "/search-book-{txtSearch}", method = RequestMethod.GET)
 	public String searchBook(@PathVariable String txtSearch, ModelMap model) {
 		Book book = new Book();
-		book = (Book) bookDao.findbyId(txtSearch);
+		book = (Book) bookService.findById(txtSearch);
 		
 		List<Book> books = new ArrayList<Book>();
 		books.add(book);
@@ -424,7 +413,7 @@ public class AppController {
 	@RequestMapping(value = "/user/search-book-{txtSearch}", method = RequestMethod.GET)
 	public String searchBookForUser(@PathVariable String txtSearch, ModelMap model) {
 		Book book = new Book();
-		book = (Book) bookDao.findbyId(txtSearch);
+		book = (Book) bookService.findById(txtSearch);
 		
 		List<Book> books = new ArrayList<Book>();
 		books.add(book);

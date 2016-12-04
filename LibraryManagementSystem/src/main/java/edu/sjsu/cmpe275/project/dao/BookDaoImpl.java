@@ -34,23 +34,20 @@ public class BookDaoImpl extends AbstractDao<Integer, Book> implements BookDao {
 	 * @see edu.sjsu.cmpe275.project.dao.BookDao#findByTitle(java.lang.String)
 	 */
 	@Override
-	public Book findByTitle(String title) {
+	public List<Book> findByTitle(String title) {
 		Criteria crit = createEntityCriteria();
 		crit.add(Restrictions.eq("title", title));
-		List<Book> listBook = new ArrayList<Book>();
+		List<Book> bookList = new ArrayList<Book>();
 		
-		listBook = (List<Book>) crit.list();
+		bookList = (List<Book>) crit.list();
 		Book book1 = new Book();
-		if (listBook!=null) {
-			book1 = listBook.get(0);
-			for (Book book : listBook) {
+		if (bookList!=null && bookList.size()>0) {
+			book1 = bookList.get(0);
+			for (Book book : bookList) {
 				System.out.println(book);
 			}
 		}
-//		if (user != null) {
-//			Hibernate.initialize(user.getCopies());
-//		}
-		return book1;
+		return bookList;
 	}
 
 	/* (non-Javadoc)
@@ -84,13 +81,7 @@ public class BookDaoImpl extends AbstractDao<Integer, Book> implements BookDao {
 	}
 
 	@Override
-	public Book update(String id) {
-		// TODO Auto-generated method stub
-		Criteria crit = createEntityCriteria();
-		crit.add(Restrictions.eq("id", id));
-		Book book = (Book)crit.uniqueResult();
-		//book.setAuthor(author);
-		return null;
+	public void modify(Book book) {
+		update(book);
 	}
-
 }

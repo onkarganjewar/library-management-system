@@ -1,6 +1,3 @@
-/**
- * 
- */
 package edu.sjsu.cmpe275.project.dao;
 
 
@@ -10,13 +7,12 @@ import edu.sjsu.cmpe275.project.model.Book;
 
 /**
  * @author Onkar Ganjewar
- * 
  */
 public interface BookDao {
 	void save(Book book);
-	Book findByTitle(String title);
+	List<Book> findByTitle(String title);
 	void deleteById(int id);
 	List<Book> findAllBooks();
 	Book findbyId(String id);
-	Book update(String id);
+	void modify(Book book);
 }
