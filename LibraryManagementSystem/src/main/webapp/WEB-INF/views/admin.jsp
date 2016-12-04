@@ -33,7 +33,7 @@ $(document).ready(function() {
 		<div class="form-group row">
  			 <div class="col-xs-6">
     		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch">
-    		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch">
+    		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;">
   			</div>
 		</div>
 		<div class="panel-heading"><span class="lead">List of Books</span></div>
