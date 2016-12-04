@@ -408,4 +408,17 @@ public class AppController {
 		}
 		return null;
 	}
+	
+	@RequestMapping(value = "/search-book-{txtSearch}", method = RequestMethod.GET)
+	public String searchBook(@PathVariable String txtSearch, ModelMap model) {
+		Book book = new Book();
+		book = (Book) bookDao.findbyId(txtSearch);
+		
+		List<Book> books = new ArrayList<Book>();
+		books.add(book);
+		
+		model.addAttribute("books",books);
+		return "admin";
+	}
+	
 }

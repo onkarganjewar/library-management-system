@@ -1,12 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#btnSearch').click( function() {
+		console.log("button clicked");
+		var bookId = $('#txtSearch').val();
+		var url = "http://localhost:8080/Cmpe275-Library-Management-System/search-book-"+bookId;
+				window.location.replace(url);
+	});
+});
+</script>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 	<title>Admin page</title>
 	<link href="<c:url value='/static/css/bootstrap.css' />" rel="stylesheet"></link>
     <link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
 </head>
+
 <body>
 	<div class="col-md-12">
 	<div class="col-md-8">
@@ -20,8 +32,8 @@
 	<div class="panel panel-default">
 		<div class="form-group row">
  			 <div class="col-xs-6">
-    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name">
-    		 	<button type="submit" class="btn btn-primary" style="margin:10px 0px 0px 0px;">Search</button>
+    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch">
+    		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch">
   			</div>
 		</div>
 		<div class="panel-heading"><span class="lead">List of Books</span></div>
