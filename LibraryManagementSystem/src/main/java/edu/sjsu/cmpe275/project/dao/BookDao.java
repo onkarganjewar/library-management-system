@@ -17,4 +17,6 @@ public interface BookDao {
 	Book findByTitle(String title);
 	void deleteById(int id);
 	List<Book> findAllBooks();
+	Book findbyId(String id);
+	Book update(String id);
 }

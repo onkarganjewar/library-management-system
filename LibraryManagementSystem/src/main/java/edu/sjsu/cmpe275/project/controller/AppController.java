@@ -31,6 +31,7 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -201,7 +202,12 @@ public class AppController {
 	public List<UserProfile> initializeProfiles() {
 		return userProfileService.findAll();
 	}
-
+	
+//	@ModelAttribute("copies")
+//	public List<UserProfile> initializeProfiles() {
+//		return bookCopyDao.findByBook(book);
+//	}
+	
 	/**
 	 * This method handles Access-Denied redirect.
 	 */
@@ -291,7 +297,7 @@ public class AppController {
 	
 	@RequestMapping(value = { "/newBook" }, method = RequestMethod.POST)
 	public String newBook_POST(Book book, BindingResult result, ModelMap model,
-			final HttpServletRequest request, @ModelAttribute("copies") String copy) {
+			final HttpServletRequest request,  @ModelAttribute("copies") String copy) {
 
 		boolean NaN = false;
 		int copies=0;
@@ -317,6 +323,42 @@ public class AppController {
 		}
 		return "redirect:/admin";
 	}
+	
+	/**
+     * This method will provide the medium to update an existing user.
+     */
+    @RequestMapping(value = { "/edit-book-{id}" }, method = RequestMethod.GET)
+    public String editBook(@PathVariable String id , ModelMap model) {
+    	Book book= bookDao.findbyId(id);
+    	int copies = 10;
+//    	BookCopy returnCopy = bookCopyDao.findByBook(book);
+//    	returnCopy.getBooks();
+        model.addAttribute("book", book);
+        model.addAttribute("copies", copies);
+        model.addAttribute("edit", true);
+        return "newBook";
+    }
+    
+    @RequestMapping(value = { "/edit-book-{id}"}, method = RequestMethod.POST)
+    public String updateBook(Book book, @ModelAttribute("copies") String copy,BindingResult result,
+            ModelMap model, @PathVariable String id) {
+ 
+        if (result.hasErrors()) {
+            return "redirect:/admin";
+        }
+ 
+        /*//Uncomment below 'if block' if you WANT TO ALLOW UPDATING SSO_ID in UI which is a unique key to a User.
+        if(!userService.isUserSSOUnique(user.getId(), user.getSsoId())){
+            FieldError ssoError =new FieldError("user","ssoId",messageSource.getMessage("non.unique.ssoId", new String[]{user.getSsoId()}, Locale.getDefault()));
+            result.addError(ssoError);
+            return "registration";
+        }*/
+
+        //bookDao.update(book);
+       
+        return "redirect:/admin";
+    }
+ 
 
 	/**
 	 * This method returns true if users is already authenticated [logged-in],

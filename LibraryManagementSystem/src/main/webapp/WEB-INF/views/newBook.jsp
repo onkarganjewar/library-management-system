@@ -46,7 +46,7 @@
                 <div class="form-group col-md-12">
                     <label class="col-md-3 control-lable" for="copies">Copies</label>
                     <div class="col-md-7">
-                        <form:input type="text" path="copies" id="copies" class="form-control input-sm" />
+                        <input type="text" id="copies" class="form-control input-sm" value = "${copies }" />
                         <div class="has-error">
                             <form:errors path="copies" class="help-inline"/>
                         </div>

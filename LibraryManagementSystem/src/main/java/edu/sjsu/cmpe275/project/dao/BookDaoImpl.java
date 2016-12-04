@@ -73,4 +73,24 @@ public class BookDaoImpl extends AbstractDao<Integer, Book> implements BookDao {
 		return books;
 	}
 
+	@Override
+	public Book findbyId(String id) {
+		Integer intId = Integer.parseInt(id);
+		
+		Criteria crit = createEntityCriteria();
+		crit.add(Restrictions.eq("id", intId));
+		Book book = (Book)crit.uniqueResult();
+		return book;
+	}
+
+	@Override
+	public Book update(String id) {
+		// TODO Auto-generated method stub
+		Criteria crit = createEntityCriteria();
+		crit.add(Restrictions.eq("id", id));
+		Book book = (Book)crit.uniqueResult();
+		//book.setAuthor(author);
+		return null;
+	}
+
 }
