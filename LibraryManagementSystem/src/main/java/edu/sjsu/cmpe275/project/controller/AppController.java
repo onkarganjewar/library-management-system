@@ -318,36 +318,49 @@ public class AppController {
      */
     @RequestMapping(value = { "/edit-book-{id}" }, method = RequestMethod.GET)
     public String editBook(@PathVariable String id , ModelMap model) {
-    	Book book= bookService.findById(id);
-    	int copies = 10;
-//    	BookCopy returnCopy = bookCopyDao.findByBook(book);
-//    	returnCopy.getBooks();
+    	Book book = bookService.findById(id);
+    	int copies = 1;
+    	List<BookCopy> returnCopies = bookCopyDao.findByBook(book);
+    	copies = returnCopies.size();
         model.addAttribute("book", book);
         model.addAttribute("copies", copies);
         model.addAttribute("edit", true);
-        return "newBook";
+        return "editBook";
     }
     
     @RequestMapping(value = { "/edit-book-{id}"}, method = RequestMethod.POST)
-    public String updateBook(Book book, @ModelAttribute("copies") String copy,BindingResult result,
-            ModelMap model, @PathVariable String id) {
- 
-        if (result.hasErrors()) {
-            return "redirect:/admin";
-        }
- 
-        /*//Uncomment below 'if block' if you WANT TO ALLOW UPDATING SSO_ID in UI which is a unique key to a User.
-        if(!userService.isUserSSOUnique(user.getId(), user.getSsoId())){
-            FieldError ssoError =new FieldError("user","ssoId",messageSource.getMessage("non.unique.ssoId", new String[]{user.getSsoId()}, Locale.getDefault()));
-            result.addError(ssoError);
-            return "registration";
-        }*/
+    public String updateBook(Book book, BindingResult result,
+            ModelMap model, @PathVariable String id, @RequestParam(value = "cn", required = false) String cn) {
+		boolean NaN = false;
+		int copies=0;
+		// Check the input no of copies
+		try {
+			copies = Integer.parseInt(cn);	
+		} catch (NumberFormatException e) {
+			// If not a valid number or null string, then DO NOT update copies
+			NaN = true;
+		}
+		bookService.updateBook(book);
 
-        //bookDao.update(book);
-       
+		/*if(!NaN) {
+			// If a valid number then create the specified number of copies
+			// get the number of copies existing for that book
+			List<BookCopy> copiesList = bookCopyDao.findByBook(book);
+			for (BookCopy bookCopy : copiesList) {
+//Cannot delete or update a parent row: a foreign key constraint fails 
+//	(`cmpe275_project_git`.`book_copy`, CONSTRAINT `FK_g8gwwcbxc9lyakxo4yxyo9trt` 
+//				FOREIGN KEY (`book_id`) REFERENCES `book` (`id`))
+//				bookCopyDao.delete(bookCopy);
+			}
+			for (int i=0 ; i<copies; i++) {
+				BookCopy bookCopy = new BookCopy();
+				bookCopy.setBooks(book);
+				bookCopyDao.save(bookCopy);
+			}
+		}*/
+		
         return "redirect:/admin";
-    }
- 
+    } 
 
 	/**
 	 * This method returns true if users is already authenticated [logged-in],

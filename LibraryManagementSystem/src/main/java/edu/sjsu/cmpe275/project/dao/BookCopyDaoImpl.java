@@ -34,7 +34,7 @@ public class BookCopyDaoImpl extends AbstractDao<Integer, BookCopy> implements B
 	}
 
 	@Override
-	public BookCopy findByBook (Book book) {
+	public List<BookCopy> findByBook (Book book) {
 
 		Criteria crit = createEntityCriteria();
 		crit.add(Restrictions.eq("books", book));
@@ -42,7 +42,11 @@ public class BookCopyDaoImpl extends AbstractDao<Integer, BookCopy> implements B
 		for (BookCopy bookCopy : bcList) {
 			System.out.println(bookCopy.getId());
 		}
-		return bcList.get(0);
+		return bcList;
 	}	
-
+	
+	@Override
+	public void delete(BookCopy entity) {
+		super.delete(entity);
+	}
 }
