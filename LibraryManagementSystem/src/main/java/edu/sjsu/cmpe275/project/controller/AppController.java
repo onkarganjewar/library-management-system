@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
@@ -40,6 +41,7 @@ import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
 import edu.sjsu.cmpe275.project.notification.CustomMailSender;
 import edu.sjsu.cmpe275.project.service.BookService;
+import edu.sjsu.cmpe275.project.service.CheckoutService;
 import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
@@ -74,6 +76,9 @@ public class AppController {
 	@Autowired
 	CheckoutDao checkoutDao;
 
+	@Autowired
+	CheckoutService checkoutService;
+
 	HttpSession session;
 
 	@Autowired
@@ -99,22 +104,61 @@ public class AppController {
 	}
 
 	@RequestMapping(value = "/demo/ch", method = RequestMethod.GET)
-	public String adminPage() {
-		List<Book> books = bookService.findAllBooks();
-		Book book = books.get(2);
-		int bookId = book.getId();
+	public String checkoutTest() {
+		int userId = 2;
+		int bookId = 13;
 
-		List<BookCopy> copies = bookCopyDao.findByBook(book);
-		BookCopy copy = copies.get(1);
-		int copyId = copy.getId();
+		List<BookCopy> checkoutBookCopiesList = new ArrayList<BookCopy>();
+		
+		// Get the book from the book id
+		Book book = bookService.findById(Integer.toString(bookId));
 
-		List<User> users = userService.findAllUsers();
-		User user = users.get(1);
-		int userId = user.getId();
+		// Get the list of all the copies for the given book
+		List<BookCopy> allBookCopies = bookCopyDao.findByBook(book);
 
+		// Get the list of checked out copies for the given book
+		List<Checkout> checkoutBooksList = checkoutService.findByBookId(bookId);
+
+		// Check whether any copy of the given book is available for rent
+		if (checkoutBooksList!=null && !checkoutBooksList.isEmpty()) {
+			if (allBookCopies.size() <= checkoutBooksList.size()) {
+				book.setAvailability("Not Available");
+//				available = false;
+				bookService.updateBook(book);
+				return "Book-Copy-Not-Available";
+			}
+			// Get the list of book copies for the given checked-out book
+			for (Checkout checkout2 : checkoutBooksList) {
+				checkoutBookCopiesList.add(checkout2.getCopy());
+			}
+		}
+	
+		// Compare all the book copies and checked-out book copies for the given book
+		// and remove the checked-out copies from the allCopies of the given book
+		allBookCopies.removeAll(checkoutBookCopiesList);
+		List<BookCopy> diffCopies = allBookCopies;
+		
+		System.out.println(diffCopies);
+		
+		// Loan the first different book copy to the given user
+		User user = userService.findById(userId);
+		
+		// Check whether the user holds the different copy of the given book
+//		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
+//		if (checkoutUsersList!=null && !checkoutUsersList.isEmpty()) {
+//			for (Checkout checkout : checkoutUsersList) {
+//				long checkoutUserId = checkout.getUserId();
+//				if (checkoutUserId == userId) {
+//					userAlreadyOwnsTheBook = true;
+//					break;
+//				}
+//			}
+//		}
+		
+		
 		Checkout checkout = new Checkout();
 		checkout.setBook(book);
-		checkout.setCopy(copy);
+		checkout.setCopy(diffCopies.get(0));
 		checkout.setUser(user);
 		checkout.setBookId(bookId);
 		checkout.setUserId(userId);
@@ -126,18 +170,15 @@ public class AppController {
 			checkoutDao.insert(checkout);
 		} catch (Exception e) {
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-				return "{\"Status\":\"Failure\"}";
+				return "{\"Status\":\"Duplicate\"}";
 			}
-			return "{\"Status\":\"Exception\"}";
+			return "{\"Status\":\"Failure\"}";
 		}
 
 		bookService.updateBook(book);
 		userService.updateUser(user);
 
 		Book returnBook = bookService.findById(Integer.toString(bookId));
-
-		book.setCheckoutCopies(checkoutCopies);
-		// checkoutDao.remove(checkout);
 		return "admin";
 	}
 

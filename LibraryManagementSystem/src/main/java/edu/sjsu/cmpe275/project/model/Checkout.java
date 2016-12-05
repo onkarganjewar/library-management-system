@@ -45,7 +45,7 @@ public class Checkout implements Serializable {
 	private Book book;
 
 	@ManyToOne
-	@JoinColumn(name = "book_copy_id")
+	@JoinColumn(name = "book_copy_id", unique = true)
 	private BookCopy copy;
 
 
@@ -139,5 +139,10 @@ public class Checkout implements Serializable {
 
 	public void setUser(User userId) {
 		this.user = userId;
+	}
+	
+	@Override
+	public String toString() {
+		return "Checkout [Book Id=" + bookId + ", User Id=" + userId + ", " + copy + "]";
 	}
 }

@@ -1,16 +1,20 @@
 package edu.sjsu.cmpe275.project.dao;
 
 import java.io.Serializable;
+import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
 import edu.sjsu.cmpe275.project.model.Checkout;
-import edu.sjsu.cmpe275.project.model.User;
 
 /**
  * @author Onkar Ganjewar
@@ -19,28 +23,51 @@ import edu.sjsu.cmpe275.project.model.User;
 @Transactional
 public class CheckoutDaoImpl extends AbstractDao<Serializable, Checkout> implements CheckoutDao{
 
+	static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
 
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	/* (non-Javadoc)
-	 * @see edu.sjsu.cmpe275.project.dao.CheckoutDao#insert(edu.sjsu.cmpe275.project.model.Book, edu.sjsu.cmpe275.project.model.BookCopy, edu.sjsu.cmpe275.project.model.User)
-	 */
 	@Override
 	public void insert(Checkout entity) {
 		try {
 			sessionFactory.getCurrentSession().save(entity);
 		} catch (Exception e) {
-			// TODO: handle exception
+			logger.error(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.sjsu.cmpe275.project.dao.CheckoutDao#remove(edu.sjsu.cmpe275.project.model.Checkout)
-	 */
 	@Override
 	public void remove(Checkout entity) {
 		delete(entity);
 	}
-	
+
+	@Override
+	public List<Checkout> findByBookId(int bookId) {
+		logger.info("Book Id : {}", bookId);
+		Criteria crit = createEntityCriteria();
+		crit.add(Restrictions.eq("bookId", bookId));
+		List<Checkout> checkoutList = (List<Checkout>) crit.list();
+		if(checkoutList!=null && checkoutList.size()>0){
+			for (Checkout checkout : checkoutList) {
+				Hibernate.initialize(checkout.getCopy());	
+			}
+		}
+		return checkoutList;
+	}
+
+	@Override
+	public List<Checkout> findByUserId(int userId) {
+		logger.info("User Id : {}", userId);
+		Criteria crit = createEntityCriteria();
+		crit.add(Restrictions.eq("userId", userId));
+		List<Checkout> checkoutList = (List<Checkout>) crit.list();
+		if(checkoutList!=null && checkoutList.size()>0){
+			for (Checkout checkout : checkoutList) {
+				Hibernate.initialize(checkout.getCopy());	
+			}
+		}
+		return checkoutList;
+	}
 }
