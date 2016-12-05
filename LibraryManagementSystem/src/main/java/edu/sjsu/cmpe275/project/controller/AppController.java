@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -521,5 +523,20 @@ public class AppController {
 
 		model.addAttribute("books", books);
 		return "users";
+	}
+	
+	@RequestMapping(value = "/user/checkout-book-{id}", method = RequestMethod.GET)
+	public String checkoutBookForUser(@PathVariable String id, ModelMap model) {
+		Book book = new Book();
+		book = (Book) bookService.findById(id);
+	
+        Date dueDate = DateUtils.addMonths(new Date(), 1);
+        //created = LocalDate.now();
+        //System.out.println("Date : " +dueDate);
+        
+		model.addAttribute("due",dueDate.toString());
+		model.addAttribute("book",book);
+		//model.addAttribute("widget",created);
+		return "bookCheckoutWindow";
 	}
 }
