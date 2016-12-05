@@ -77,6 +77,9 @@ public class BookDaoImpl extends AbstractDao<Integer, Book> implements BookDao {
 		Criteria crit = createEntityCriteria();
 		crit.add(Restrictions.eq("id", intId));
 		Book book = (Book)crit.uniqueResult();
+		if(book!=null) {
+			Hibernate.initialize(book.getCheckoutCopies());
+		}
 		return book;
 	}
 

@@ -26,6 +26,7 @@ import org.hibernate.annotations.CascadeType;
 @Table(name = "BOOK")
 public class Book implements Serializable {
 
+	
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -43,6 +44,12 @@ public class Book implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "books")
 	private List<BookCopy> copies;
 
+	@Column
+//	@Cascade({ CascadeType.ALL })
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
+	private List<Checkout> checkoutCopies;
+
+	
 	@Column
 	private String availability;
 
@@ -139,6 +146,14 @@ public class Book implements Serializable {
 
 	public void setPublisher(String publisher) {
 		this.publisher = publisher;
+	}
+
+	public List<Checkout> getCheckoutCopies() {
+		return checkoutCopies;
+	}
+
+	public void setCheckoutCopies(List<Checkout> checkoutCopies) {
+		this.checkoutCopies = checkoutCopies;
 	}
 
 	@Override

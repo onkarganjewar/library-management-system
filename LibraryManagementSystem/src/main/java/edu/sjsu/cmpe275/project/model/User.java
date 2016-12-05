@@ -2,6 +2,7 @@ package edu.sjsu.cmpe275.project.model;
 
 import java.io.Serializable; 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -13,8 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -63,6 +67,11 @@ public class User implements Serializable {
 			@JoinColumn(name = "USER_PROFILE_ID") })
 	private Set<UserProfile> userProfiles = new HashSet<UserProfile>();
 
+	@Column
+	@Cascade({ CascadeType.ALL })
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<Checkout> checkoutCopies;
+	
 	private boolean enabled;
 
 	public User() {
@@ -132,6 +141,14 @@ public class User implements Serializable {
 
 	public void setUserProfiles(Set<UserProfile> userProfiles) {
 		this.userProfiles = userProfiles;
+	}
+
+	public List<Checkout> getCheckoutCopies() {
+		return checkoutCopies;
+	}
+
+	public void setCheckoutCopies(List<Checkout> checkoutCopies) {
+		this.checkoutCopies = checkoutCopies;
 	}
 
 	@Override

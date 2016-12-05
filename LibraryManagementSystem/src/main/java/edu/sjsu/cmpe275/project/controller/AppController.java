@@ -44,8 +44,10 @@ import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
 import edu.sjsu.cmpe275.project.dao.BookCopyDao;
+import edu.sjsu.cmpe275.project.dao.CheckoutDao;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
+import edu.sjsu.cmpe275.project.model.Checkout;
 
 /**
  * @author Onkar Ganjewar
@@ -69,6 +71,9 @@ public class AppController {
 	@Autowired
 	BookService bookService;
 
+	@Autowired
+	CheckoutDao checkoutDao;
+
 	HttpSession session;
 
 	@Autowired
@@ -90,6 +95,49 @@ public class AppController {
 	public String adminPage(ModelMap model) {
 		List<Book> books = bookService.findAllBooks();
 		model.addAttribute("books", books);
+		return "admin";
+	}
+
+	@RequestMapping(value = "/demo/ch", method = RequestMethod.GET)
+	public String adminPage() {
+		List<Book> books = bookService.findAllBooks();
+		Book book = books.get(2);
+		int bookId = book.getId();
+
+		List<BookCopy> copies = bookCopyDao.findByBook(book);
+		BookCopy copy = copies.get(1);
+		int copyId = copy.getId();
+
+		List<User> users = userService.findAllUsers();
+		User user = users.get(1);
+		int userId = user.getId();
+
+		Checkout checkout = new Checkout();
+		checkout.setBook(book);
+		checkout.setCopy(copy);
+		checkout.setUser(user);
+		checkout.setBookId(bookId);
+		checkout.setUserId(userId);
+		List<Checkout> checkoutCopies = new ArrayList<Checkout>();
+		checkoutCopies.add(checkout);
+		book.setCheckoutCopies(checkoutCopies);
+		user.setCheckoutCopies(checkoutCopies);
+		try {
+			checkoutDao.insert(checkout);
+		} catch (Exception e) {
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+				return "{\"Status\":\"Failure\"}";
+			}
+			return "{\"Status\":\"Exception\"}";
+		}
+
+		bookService.updateBook(book);
+		userService.updateUser(user);
+
+		Book returnBook = bookService.findById(Integer.toString(bookId));
+
+		book.setCheckoutCopies(checkoutCopies);
+		// checkoutDao.remove(checkout);
 		return "admin";
 	}
 
@@ -359,11 +407,12 @@ public class AppController {
 		return "redirect:/admin";
 	}
 
-	 @RequestMapping(value = { "/delete-book-{id}" }, method = RequestMethod.GET)
-	    public String deleteBook(@PathVariable String id) {
-	        bookService.deleteBook(Integer.parseInt(id));
-	        return "redirect:/admin";
-	    }
+	@RequestMapping(value = { "/delete-book-{id}" }, method = RequestMethod.GET)
+	public String deleteBook(@PathVariable String id) {
+		bookService.deleteBook(Integer.parseInt(id));
+		return "redirect:/admin";
+	}
+
 	/**
 	 * This method returns true if users is already authenticated [logged-in],
 	 * else false.
@@ -415,7 +464,7 @@ public class AppController {
 
 	@RequestMapping(value = "/search-book-{txtSearch:.+}", method = RequestMethod.GET)
 	public String searchBook(@PathVariable String txtSearch, ModelMap model) {
-		List<Book> books = (List<Book>)bookService.findByTitle(txtSearch);
+		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
 
 		model.addAttribute("books", books);
 		return "admin";

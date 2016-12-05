@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,9 @@ import edu.sjsu.cmpe275.project.model.VerificationToken;
 @Transactional
 public class UserServiceImpl implements UserService {
 
+	@Autowired
+	private SessionFactory sessionFactory;
+	
 	@Autowired
 	private UserDao dao;
 
@@ -54,18 +58,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void updateUser(User user) {
-		User entity = dao.findById(user.getId());
-		if (entity != null) {
-			if (!user.getPassword().equals(entity.getPassword())) {
-				entity.setPassword(passwordEncoder.encode(user.getPassword()));
-			}
-			entity.setuId(user.getuId());
-			entity.setFirstName(user.getFirstName());
-			entity.setLastName(user.getLastName());
-			entity.setEmail(user.getEmail());
-			entity.setUserProfiles(user.getUserProfiles());
-			entity.setEnabled(user.isEnabled());
-		}
+		sessionFactory.getCurrentSession().update(user);
+		
+//		User entity = dao.findById(user.getId());
+//		if (entity != null) {
+//			if (!user.getPassword().equals(entity.getPassword())) {
+//				entity.setPassword(passwordEncoder.encode(user.getPassword()));
+//			}
+//			entity.setuId(user.getuId());
+//			entity.setFirstName(user.getFirstName());
+//			entity.setLastName(user.getLastName());
+//			entity.setEmail(user.getEmail());
+//			entity.setUserProfiles(user.getUserProfiles());
+//			entity.setEnabled(user.isEnabled());
+//		}
 	}
 
 	@Override

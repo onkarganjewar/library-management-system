@@ -2,6 +2,7 @@ package edu.sjsu.cmpe275.project.service;
 
 import java.util.List;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,9 @@ import edu.sjsu.cmpe275.project.model.Book;
 @Service("bookService")
 @Transactional
 public class BookServiceImpl implements BookService {
-
+	@Autowired
+	private SessionFactory sessionFactory;
+	
 	@Autowired
 	BookDao bookDao;
 
@@ -45,18 +48,20 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public void updateBook(Book book) {
-		Book entity = bookDao.findbyId(book.getId().toString());
-		if (entity != null) {
-			entity.setAuthor(book.getAuthor());
-			entity.setAvailability(book.getAvailability());
-			entity.setCallNumber(book.getCallNumber());
-			entity.setCopies(book.getCopies());
-			entity.setKeywords(book.getKeywords());
-			entity.setLibraryLocation(book.getLibraryLocation());
-			entity.setPublicationYear(book.getPublicationYear());
-			entity.setPublisher(book.getPublisher());
-			entity.setTitle(book.getTitle());
-		}
+		sessionFactory.getCurrentSession().update(book);
+//		Book entity = bookDao.findbyId(book.getId().toString());
+//		if (entity != null) {
+//			entity.setAuthor(book.getAuthor());
+//			entity.setAvailability(book.getAvailability());
+//			entity.setCallNumber(book.getCallNumber());
+//			entity.setCopies(book.getCopies());
+//			entity.setKeywords(book.getKeywords());
+//			entity.setLibraryLocation(book.getLibraryLocation());
+//			entity.setPublicationYear(book.getPublicationYear());
+//			entity.setPublisher(book.getPublisher());
+//			entity.setTitle(book.getTitle());
+//			entity.setCheckoutCopies(book.getCheckoutCopies());
+//		}
 	}
 
 	@Override
