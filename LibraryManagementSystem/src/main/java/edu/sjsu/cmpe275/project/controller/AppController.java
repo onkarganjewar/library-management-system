@@ -1,6 +1,11 @@
 package edu.sjsu.cmpe275.project.controller;
 
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -48,10 +53,12 @@ import edu.sjsu.cmpe275.project.service.UserProfileService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
 import edu.sjsu.cmpe275.project.dao.BookCopyDao;
-import edu.sjsu.cmpe275.project.dao.CheckoutDao;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
+
 import edu.sjsu.cmpe275.project.model.Checkout;
+import edu.sjsu.cmpe275.project.dao.CheckoutDao;
+import edu.sjsu.cmpe275.project.dao.UserDao;
 
 /**
  * @author Onkar Ganjewar
@@ -97,6 +104,9 @@ public class AppController {
 
 	@Autowired
 	private BookCopyDao bookCopyDao;
+
+	@Autowired
+	private UserDao userDao;
 
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public String adminPage(ModelMap model) {
@@ -538,5 +548,33 @@ public class AppController {
 		model.addAttribute("book",book);
 		//model.addAttribute("widget",created);
 		return "bookCheckoutWindow";
+	}
+	
+	@RequestMapping(value = "/user/viewCheckedOutBooks-{user}", method = RequestMethod.GET)
+	public String userCheckedOutBooks(@PathVariable String user,ModelMap model) {
+		
+		User current_user=userDao.findByEmail(user);
+		
+		
+        
+		return "checkedOutBooks";
+	}
+	
+	
+	@RequestMapping(value = "/demo-checkout-{timeDate}", method = RequestMethod.GET)
+	public String demoCheckout(@PathVariable String timeDate,ModelMap model) throws ParseException {
+		
+		Date setDate = new Date(timeDate);
+		
+		//DateFormat format = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss Z", Locale.US);
+		//Date setDate = format.parse(timeDate);
+		
+	   Date now=new Date();
+	   int result=(int) ((setDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+	   int result1=(int) ((setDate.getTime() - now.getTime())/(1000 * 60 * 60));
+
+	   
+	   System.out.println("RESULT"+result1);
+		return "checkedOutBooks";
 	}
 }
