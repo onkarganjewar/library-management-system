@@ -1,11 +1,7 @@
-/**
- * 
- */
 package edu.sjsu.cmpe275.project.model;
 
-import java.io.Serializable;
+import java.io.Serializable; 
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -17,7 +13,6 @@ import javax.persistence.Table;
 
 /**
  * @author Onkar Ganjewar
- * 
  */
 @Entity
 @Table(name = "BOOK_COPY")
@@ -30,7 +25,7 @@ public class BookCopy implements Serializable  {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade= CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "book_id")
 	private Book books;
 
@@ -75,4 +70,8 @@ public class BookCopy implements Serializable  {
 		return result;
 	}
 	
+	@Override
+	public String toString() {
+		return "BookCopy [Id="+id +"]";
+	}
 }

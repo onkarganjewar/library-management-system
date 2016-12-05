@@ -47,7 +47,6 @@ import edu.sjsu.cmpe275.project.dao.BookCopyDao;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
 
-
 /**
  * @author Onkar Ganjewar
  * @author Shreya Prabhu
@@ -69,7 +68,7 @@ public class AppController {
 
 	@Autowired
 	BookService bookService;
-	
+
 	HttpSession session;
 
 	@Autowired
@@ -89,8 +88,8 @@ public class AppController {
 
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public String adminPage(ModelMap model) {
-		List<Book> books=bookService.findAllBooks();
-		model.addAttribute("books",books);
+		List<Book> books = bookService.findAllBooks();
+		model.addAttribute("books", books);
 		return "admin";
 	}
 
@@ -196,7 +195,7 @@ public class AppController {
 	public List<UserProfile> initializeProfiles() {
 		return userProfileService.findAll();
 	}
-	
+
 	/**
 	 * This method handles Access-Denied redirect.
 	 */
@@ -276,25 +275,26 @@ public class AppController {
 		}
 		return userName;
 	}
-	
+
 	@RequestMapping(value = "/newBook", method = RequestMethod.GET)
 	public String addNewBookPage(ModelMap model) {
-		Book books=new Book();
-		model.addAttribute("book",books);
+		Book books = new Book();
+		model.addAttribute("book", books);
 		return "newBook";
 	}
-	
+
 	@RequestMapping(value = { "/newBook" }, method = RequestMethod.POST)
-	public String newBook_POST(Book book, BindingResult result, ModelMap model,
-			final HttpServletRequest request,  @ModelAttribute("copies") String copy) {
+	public String newBook_POST(Book book, BindingResult result, ModelMap model, final HttpServletRequest request,
+			@ModelAttribute("copies") String copy) {
 
 		boolean NaN = false;
-		int copies=0;
+		int copies = 0;
 		// Check the input no of copies
 		try {
-			copies = Integer.parseInt(copy);	
+			copies = Integer.parseInt(copy);
 		} catch (NumberFormatException e) {
-			// If not a valid number or null string, then create only one copy by default
+			// If not a valid number or null string, then create only one copy
+			// by default
 			NaN = true;
 			BookCopy bookCopy = new BookCopy();
 			bookCopy.setBooks(book);
@@ -302,9 +302,9 @@ public class AppController {
 		}
 		bookService.saveBook(book);
 
-		if(!NaN) {
+		if (!NaN) {
 			// If a valid number then create the specified number of copies
-			for (int i=0 ; i<copies; i++) {
+			for (int i = 0; i < copies; i++) {
 				BookCopy bookCopy = new BookCopy();
 				bookCopy.setBooks(book);
 				bookCopyDao.save(bookCopy);
@@ -312,56 +312,58 @@ public class AppController {
 		}
 		return "redirect:/admin";
 	}
-	
+
 	/**
-     * This method will provide the medium to update an existing user.
-     */
-    @RequestMapping(value = { "/edit-book-{id}" }, method = RequestMethod.GET)
-    public String editBook(@PathVariable String id , ModelMap model) {
-    	Book book = bookService.findById(id);
-    	int copies = 1;
-    	List<BookCopy> returnCopies = bookCopyDao.findByBook(book);
-    	copies = returnCopies.size();
-        model.addAttribute("book", book);
-        model.addAttribute("copies", copies);
-        model.addAttribute("edit", true);
-        return "editBook";
-    }
-    
-    @RequestMapping(value = { "/edit-book-{id}"}, method = RequestMethod.POST)
-    public String updateBook(Book book, BindingResult result,
-            ModelMap model, @PathVariable String id, @RequestParam(value = "cn", required = false) String cn) {
+	 * This method will provide the medium to update an existing user.
+	 */
+	@RequestMapping(value = { "/edit-book-{id}" }, method = RequestMethod.GET)
+	public String editBook(@PathVariable String id, ModelMap model) {
+		Book book = bookService.findById(id);
+		int copies = 1;
+		List<BookCopy> returnCopies = bookCopyDao.findByBook(book);
+		copies = returnCopies.size();
+		model.addAttribute("book", book);
+		model.addAttribute("copies", copies);
+		model.addAttribute("edit", true);
+		return "editBook";
+	}
+
+	@RequestMapping(value = { "/edit-book-{id}" }, method = RequestMethod.POST)
+	public String updateBook(Book book, BindingResult result, ModelMap model, @PathVariable String id,
+			@RequestParam(value = "cn", required = false) String cn) {
 		boolean NaN = false;
-		int copies=0;
+		int copies = 0;
 		// Check the input no of copies
 		try {
-			copies = Integer.parseInt(cn);	
+			copies = Integer.parseInt(cn);
 		} catch (NumberFormatException e) {
 			// If not a valid number or null string, then DO NOT update copies
 			NaN = true;
 		}
 		bookService.updateBook(book);
 
-		/*if(!NaN) {
+		if (!NaN) {
 			// If a valid number then create the specified number of copies
 			// get the number of copies existing for that book
 			List<BookCopy> copiesList = bookCopyDao.findByBook(book);
 			for (BookCopy bookCopy : copiesList) {
-//Cannot delete or update a parent row: a foreign key constraint fails 
-//	(`cmpe275_project_git`.`book_copy`, CONSTRAINT `FK_g8gwwcbxc9lyakxo4yxyo9trt` 
-//				FOREIGN KEY (`book_id`) REFERENCES `book` (`id`))
-//				bookCopyDao.delete(bookCopy);
+				bookCopyDao.deleteBookCopy(bookCopy);
 			}
-			for (int i=0 ; i<copies; i++) {
+			for (int i = 0; i < copies; i++) {
 				BookCopy bookCopy = new BookCopy();
 				bookCopy.setBooks(book);
 				bookCopyDao.save(bookCopy);
 			}
-		}*/
-		
-        return "redirect:/admin";
-    } 
+		}
 
+		return "redirect:/admin";
+	}
+
+	 @RequestMapping(value = { "/delete-book-{id}" }, method = RequestMethod.GET)
+	    public String deleteBook(@PathVariable String id) {
+	        bookService.deleteBook(Integer.parseInt(id));
+	        return "redirect:/admin";
+	    }
 	/**
 	 * This method returns true if users is already authenticated [logged-in],
 	 * else false.
@@ -373,7 +375,7 @@ public class AppController {
 
 	@RequestMapping(value = "/bookInfo", method = RequestMethod.GET)
 	public String getBookInfo(@RequestParam("isbn") String isbn) throws Exception {
-		
+
 		URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
 
 		// read from the URL
@@ -387,14 +389,14 @@ public class AppController {
 		JSONObject obj = new JSONObject(str);
 
 		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
-		System.out.println("Title = "+title);
+		System.out.println("Title = " + title);
 
 		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
-		System.out.println("Publisher = "+publisher);
+		System.out.println("Publisher = " + publisher);
 
 		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
 				.get("publishedDate");
-		System.out.println("Date published = "+publishDate);
+		System.out.println("Date published = " + publishDate);
 
 		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
 		int limit = arr.length();
@@ -402,7 +404,7 @@ public class AppController {
 
 		for (int i = 0; i < limit; i++) {
 			Object val = arr.get(i);
-//			System.out.println(val);
+			// System.out.println(val);
 			authorsList.add(val.toString());
 		}
 		for (String string : authorsList) {
@@ -410,28 +412,24 @@ public class AppController {
 		}
 		return null;
 	}
-	
-	@RequestMapping(value = "/search-book-{txtSearch}", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/search-book-{txtSearch:.+}", method = RequestMethod.GET)
 	public String searchBook(@PathVariable String txtSearch, ModelMap model) {
-		Book book = new Book();
-		book = (Book) bookService.findById(txtSearch);
-		
-		List<Book> books = new ArrayList<Book>();
-		books.add(book);
-		
-		model.addAttribute("books",books);
+		List<Book> books = (List<Book>)bookService.findByTitle(txtSearch);
+
+		model.addAttribute("books", books);
 		return "admin";
 	}
-	
+
 	@RequestMapping(value = "/user/search-book-{txtSearch}", method = RequestMethod.GET)
 	public String searchBookForUser(@PathVariable String txtSearch, ModelMap model) {
 		Book book = new Book();
 		book = (Book) bookService.findById(txtSearch);
-		
+
 		List<Book> books = new ArrayList<Book>();
 		books.add(book);
-		
-		model.addAttribute("books",books);
+
+		model.addAttribute("books", books);
 		return "users";
 	}
 }

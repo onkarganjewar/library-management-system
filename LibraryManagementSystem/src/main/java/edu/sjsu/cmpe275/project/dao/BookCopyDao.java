@@ -12,5 +12,5 @@ import edu.sjsu.cmpe275.project.model.BookCopy;
 public interface BookCopyDao {
 	void save(BookCopy bookCopy);
 	List<BookCopy> findByBook (Book book);
-	void delete(BookCopy bookCopy);
+	void deleteBookCopy(BookCopy bookCopy);
 }
