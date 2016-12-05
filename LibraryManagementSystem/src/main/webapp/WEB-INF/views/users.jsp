@@ -47,9 +47,6 @@ $(document).ready(function() {
 					<th>Author</th>
 					<th>Title</th>
 					<th>Publisher</th>
-					<sec:authorize access="hasRole('ADMIN')">
-						<th width="100"></th>
-					</sec:authorize>
 				</tr>
 			</thead>
 			<tbody>
@@ -62,7 +59,7 @@ $(document).ready(function() {
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
 						<sec:authorize access="hasRole('USER')">
-							<td><a href="<c:url value='/checkout-book-${book.id}'/>" class="btn btn-success custom-width">Checkout</a></td>
+							<td><a href="<c:url value='/user/checkout-book-${book.id}'/>" class="btn btn-success custom-width">Checkout</a></td>
 						</sec:authorize>
 					</tr>
 				</c:forEach>
