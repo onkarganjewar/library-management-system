@@ -46,7 +46,7 @@
                 <div class="form-group col-md-12">
                     <label class="col-md-3 control-lable" for="copies">Copies</label>
                     <div class="col-md-7">
-                        <input type="text" id="copies" class="form-control input-sm" value = "${copies }" />
+                        <input type="text" id="copies" class="form-control input-sm" name=copies value = "${copies }" />
                         <div class="has-error">
                             <form:errors path="copies" class="help-inline"/>
                         </div>
@@ -58,7 +58,7 @@
                 <div class="form-group col-md-12">
                     <label class="col-md-3 control-lable" for="availability">Availability</label>
                     <div class="col-md-7">
-                        <form:input type="text" path="availability" id="availability" class="form-control input-sm" />
+                        <form:input type="text" path="availability" id="availability" class="form-control input-sm"  value="Available" readonly="true"/>
                         <div class="has-error">
                             <form:errors path="availability" class="help-inline"/>
                         </div>

@@ -6,7 +6,38 @@
  
 <html>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#Checkout').click( function() {
+			$.ajax({
+				url : 'http://localhost:8080/Cmpe275-Library-Management-System/user/confirm-checkout-book-'+ $('#id').val()+'?name='+$('#userid').val(),
+				type : 'GET',
+				success: function (data) {
+					console.log(data);
+					if (data == "Success") {
+						alert("Book Checked out successfully");
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
+						window.location.replace(url);
+					} else if (data == "Duplicate") {
+						alert("The book is already issued by you. Please checkout a different book.");
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
+						window.location.replace(url);
+					} else if (data == "Failure") {
+						alert("Requested book cannot be issued right now. You will be notified as soon as the book is available.");
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
+						window.location.replace(url);
+					} else if (data == "Exception") {
+						alert("Cannot issue book. Please try again.")
+					}
+	            },
+	            error: function (textStatus, errorThrown) {
+	                alert("Error getting the data");
+	            }
+			});
+		});
+	});
+	
+</script>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 	<title>Users page</title>
@@ -104,9 +135,20 @@
                 </div>
             </div>
             
+            <div class="row" style="display: none;">
+                <div class="form-group col-md-12">
+                    <label class="col-md-3 control-lable" for="userid">UserId</label>
+                    <div class="col-md-7">
+                        <input type="text" path="userid" id="userid" class="form-control input-sm" readonly="true" value="${userid}"/>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
             <div class="row">
                 <div class="form-actions floatRight">
-                  	 <input type="submit" value="Ok" class="btn btn-primary btn-sm"/> or <a href="<c:url value='/home' />">Cancel</a>
+                  	 <input type="button" class="btn btn-success custom-width" value="Checkout" id="Checkout" name="Checkout">or <a href="<c:url value='/home' />">Cancel</a>
                 </div>
             </div>
         </form:form>
