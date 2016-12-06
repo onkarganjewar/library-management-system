@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page  isELIgnored="false" %>
  <%-- 
  <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
  --%>
@@ -7,6 +8,16 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+	
+		var val = $('#val1').val();
+		console.log(val);
+		if (val == "failure")
+			alert("Book Cannot be deleted. It is checked out by a patron.");
+		else if (val == "exception")
+			alert("Something went wrong. Please try again.");
+		
+	
+	
 	$('#btnSearch').click( function() {
 		console.log("button clicked");
 		var bookId = $('#txtSearch').val();
@@ -15,7 +26,10 @@ $(document).ready(function() {
 				window.location.replace(url);
 	});
 });
+
+
 </script>
+
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 	<title>Admin page</title>
@@ -36,6 +50,7 @@ $(document).ready(function() {
 	<div class="panel panel-default">
 		<div class="form-group row">
  			 <div class="col-xs-6">
+ 			 <input type="hidden" id="val1" value="${val1 }">
     		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch">
     		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;">
   			</div>
@@ -59,18 +74,15 @@ $(document).ready(function() {
 			<tbody>
 				<c:forEach items="${books}" var="book">
 					<tr>
+						<td id="idField" style="display:none;">${book.id}</td>
 						<td>${book.publicationYear}</td>
 						<td>${book.libraryLocation}</td>
 						<td>${book.availability}</td>
 						<td>${book.author}</td>
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
-						<sec:authorize access="hasRole('ADMIN')">
 							<td><a href="<c:url value='/edit-book-${book.id}'/>" class="btn btn-success custom-width">Edit</a></td>
-						</sec:authorize>
-						<sec:authorize access="hasRole('ADMIN')">
 							<td><a href="<c:url value='/delete-book-${book.id}'/>" class="btn btn-danger custom-width">Delete</a></td>
-						</sec:authorize>
 					</tr>
 				</c:forEach>
 			</tbody>
