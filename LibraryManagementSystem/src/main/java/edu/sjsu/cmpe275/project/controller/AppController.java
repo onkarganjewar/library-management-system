@@ -4,10 +4,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +23,15 @@ import org.apache.commons.lang.time.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -35,6 +41,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 
@@ -105,13 +112,14 @@ public class AppController {
 		return "admin";
 	}
 
-	@RequestMapping(value = "/demo/ch", method = RequestMethod.GET)
-	public String checkoutTest() {
-		int userId = 2;
-		int bookId = 13;
+	@RequestMapping(value = "/user/confirm-checkout-book-{id}", method = RequestMethod.GET)
+	public @ResponseBody String checkoutTest(@PathVariable("id") String id, @RequestParam("name") String userid,
+			ModelMap model) {
+		int userId = Integer.parseInt(userid);
+		int bookId = Integer.parseInt(id);
 
 		List<BookCopy> checkoutBookCopiesList = new ArrayList<BookCopy>();
-		
+
 		// Get the book from the book id
 		Book book = bookService.findById(Integer.toString(bookId));
 
@@ -121,46 +129,93 @@ public class AppController {
 		// Get the list of checked out copies for the given book
 		List<Checkout> checkoutBooksList = checkoutService.findByBookId(bookId);
 
+		try {
+			// bookService.deleteBook(checkoutBooksList.get(0).getBook().getId());
+			// checkoutService.removeCheckout(checkoutBooksList.get(0));
+		} catch (Exception e) {
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+				return "Duplicate";
+			}
+			return "Failure";
+		}
+
 		// Check whether any copy of the given book is available for rent
-		if (checkoutBooksList!=null && !checkoutBooksList.isEmpty()) {
+		if (checkoutBooksList != null && !checkoutBooksList.isEmpty()) {
+			for (Checkout checkout : checkoutBooksList) {
+				Date cdate = checkout.getCheckoutDate();
+				System.out.println(cdate);
+			}
 			if (allBookCopies.size() <= checkoutBooksList.size()) {
 				book.setAvailability("Not Available");
-//				available = false;
+				// available = false;
 				bookService.updateBook(book);
-				return "Book-Copy-Not-Available";
+				return "Failure";
 			}
 			// Get the list of book copies for the given checked-out book
 			for (Checkout checkout2 : checkoutBooksList) {
 				checkoutBookCopiesList.add(checkout2.getCopy());
 			}
 		}
-	
-		// Compare all the book copies and checked-out book copies for the given book
-		// and remove the checked-out copies from the allCopies of the given book
+
+		// Compare all the book copies
+		// and checked-out book copies for the given book
+		// and remove the checked-out copies from the allCopies of the given
+		// book
 		allBookCopies.removeAll(checkoutBookCopiesList);
 		List<BookCopy> diffCopies = allBookCopies;
-		
+
 		System.out.println(diffCopies);
-		
+
 		// Loan the first different book copy to the given user
 		User user = userService.findById(userId);
-		
+		List<Date> dates = new ArrayList<Date>();
+
 		// Check whether the user holds the different copy of the given book
-//		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
-//		if (checkoutUsersList!=null && !checkoutUsersList.isEmpty()) {
-//			for (Checkout checkout : checkoutUsersList) {
-//				long checkoutUserId = checkout.getUserId();
-//				if (checkoutUserId == userId) {
-//					userAlreadyOwnsTheBook = true;
-//					break;
-//				}
-//			}
-//		}
-		
-		
+		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
+		if (checkoutUsersList != null && !checkoutUsersList.isEmpty()) {
+			if (checkoutUsersList.size() > 10)
+				return "Failure";
+			for (Checkout checkout : checkoutUsersList) {
+				Date userCheckOutsDate = checkout.getCheckoutDate();
+				dates.add(userCheckOutsDate);
+			}
+		}
+		// Sort the checkout dates for current user
+		Collections.sort(checkoutUsersList, new Comparator<Checkout>() {
+			public int compare(Checkout m1, Checkout m2) {
+				return m1.getCheckoutDate().compareTo(m2.getCheckoutDate());
+			}
+		});
+		List<Integer> days = new ArrayList<Integer>();
+		List<Integer> checkedOutToday = new ArrayList<Integer>();
+		for (Checkout checkout : checkoutUsersList) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(checkout.getCheckoutDate());
+			int day = cal.get(Calendar.DAY_OF_MONTH);
+			days.add(day);
+			System.out.println(checkout.getCheckoutDate());
+		}
+
+		Date currentDate = new Date();
+		Calendar currentCal = Calendar.getInstance();
+		currentCal.setTime(currentDate);
+		int currentDay = currentCal.get(Calendar.DAY_OF_MONTH);
+		for (Integer i : days) {
+			if (i.equals(currentDay)) {
+				checkedOutToday.add(i);
+			}
+		}
+		if (checkedOutToday.size() > 5)
+			return "Failure";
+
+		for (Integer integer : checkedOutToday) {
+			System.out.println(integer);
+		}
+
 		Checkout checkout = new Checkout();
 		checkout.setBook(book);
 		checkout.setCopy(diffCopies.get(0));
+		checkout.setCheckoutDate(currentDate);
 		checkout.setUser(user);
 		checkout.setBookId(bookId);
 		checkout.setUserId(userId);
@@ -172,16 +227,15 @@ public class AppController {
 			checkoutDao.insert(checkout);
 		} catch (Exception e) {
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-				return "{\"Status\":\"Duplicate\"}";
+				return "Duplicate";
 			}
-			return "{\"Status\":\"Failure\"}";
+			return "Failure";
 		}
 
 		bookService.updateBook(book);
 		userService.updateUser(user);
 
-		Book returnBook = bookService.findById(Integer.toString(bookId));
-		return "admin";
+		return "Success";
 	}
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
@@ -190,16 +244,12 @@ public class AppController {
 		return "users";
 	}
 
-	/**
-	 * This method will list all existing users.
-	 */
-	@RequestMapping(value = { "/", "/list" }, method = RequestMethod.GET)
-	public String listUsers(ModelMap model) {
 
-		List<User> users = userService.findAllUsers();
-		model.addAttribute("users", users);
-		model.addAttribute("loggedinuser", getPrincipal());
-		return "userslist";
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String demoPage() {
+//		model.addAttribute("user", getPrincipal());
+		System.out.println("ASDSDA");
+		return "login";
 	}
 
 	@RequestMapping(value = { "/signup" }, method = RequestMethod.GET)
@@ -218,9 +268,24 @@ public class AppController {
 	public String signUp_POST(@Valid User user, BindingResult result, ModelMap model,
 			final HttpServletRequest request) {
 
+		Set<UserProfile> userProfiles = new HashSet<UserProfile>();
+		
 		customValidator.validate(user, result);
 		if (result.hasErrors()) {
 			return "signup";
+		}
+		// /** If the user owns an sjsu email id then he/she is automatically
+		// gets a librarian account. */
+		if (user.getEmail().contains("@sjsu.edu")) {
+			UserProfile profile = new UserProfile();
+			profile.setType("ADMIN");
+			userProfiles.add(profile);
+			user.setUserProfiles(userProfiles);
+		} else {
+			UserProfile profile = new UserProfile();
+			profile = userProfileService.findByType("USER");
+			userProfiles.add(profile);
+			user.setUserProfiles(userProfiles);
 		}
 
 		userService.saveUser(user);
@@ -233,12 +298,8 @@ public class AppController {
 		try {
 			futures.add(mailSender.sendMail(user, getAppUrl(request)));
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user,
-		// request.getLocale(), getAppUrl(request)));
 
 		long endTime = System.currentTimeMillis();
 
@@ -272,6 +333,13 @@ public class AppController {
 
 		user.setEnabled(true);
 		userService.updateUser(user);
+
+		// try {
+		// futures.add(mailSender.sendMail(user, getAppUrl(request)));
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		return "login";
 	}
 
@@ -301,7 +369,7 @@ public class AppController {
 	 * tries to goto login page again, will be redirected to list page.
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String loginPage() {
+	public String loginPage(SecurityContextHolderAwareRequestWrapper request) {
 
 		boolean adminExists = false;
 		boolean userExists = false;
@@ -331,9 +399,31 @@ public class AppController {
 
 		if (isCurrentAuthenticationAnonymous()) {
 			return "login";
+		} else if (request.isUserInRole("ROLE_ADMIN")) {
+			return "admin";
+		} else if (request.isUserInRole("ROLE_USER")) {
+			return "users";
 		} else {
-			return "redirect:/list";
+			return "login";
 		}
+	}
+
+	protected boolean hasRole(String role) {
+		// get security context from thread local
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context == null)
+			return false;
+
+		Authentication authentication = context.getAuthentication();
+		if (authentication == null)
+			return false;
+
+		for (GrantedAuthority auth : authentication.getAuthorities()) {
+			if (role.equals(auth.getAuthority()))
+				return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -387,19 +477,24 @@ public class AppController {
 			// If not a valid number or null string, then create only one copy
 			// by default
 			NaN = true;
-			BookCopy bookCopy = new BookCopy();
-			bookCopy.setBooks(book);
-			bookCopyDao.save(bookCopy);
 		}
-		bookService.saveBook(book);
+		Integer returnBookId = bookService.saveBook(book);
+		Book returnBook = bookService.findById(Integer.toString(returnBookId));
 
+		if (returnBookId < 0) {
+			return "Error";
+		}
 		if (!NaN) {
 			// If a valid number then create the specified number of copies
 			for (int i = 0; i < copies; i++) {
 				BookCopy bookCopy = new BookCopy();
-				bookCopy.setBooks(book);
+				bookCopy.setBooks(returnBook);
 				bookCopyDao.save(bookCopy);
 			}
+		} else {
+			BookCopy bookCopy = new BookCopy();
+			bookCopy.setBooks(returnBook);
+			bookCopyDao.save(bookCopy);
 		}
 		return "redirect:/admin";
 	}
@@ -432,6 +527,7 @@ public class AppController {
 			NaN = true;
 		}
 		bookService.updateBook(book);
+		Book returnBook = bookService.findById(id);
 
 		if (!NaN) {
 			// If a valid number then create the specified number of copies
@@ -442,18 +538,34 @@ public class AppController {
 			}
 			for (int i = 0; i < copies; i++) {
 				BookCopy bookCopy = new BookCopy();
-				bookCopy.setBooks(book);
+				bookCopy.setBooks(returnBook);
 				bookCopyDao.save(bookCopy);
 			}
+		} else {
+			BookCopy bookCopy = new BookCopy();
+			bookCopy.setBooks(returnBook);
+			bookCopyDao.save(bookCopy);
 		}
 
 		return "redirect:/admin";
 	}
 
 	@RequestMapping(value = { "/delete-book-{id}" }, method = RequestMethod.GET)
-	public String deleteBook(@PathVariable String id) {
-		bookService.deleteBook(Integer.parseInt(id));
-		return "redirect:/admin";
+	public String deleteBook(@PathVariable String id, ModelMap mo) {
+
+		try {
+			bookService.deleteBook(Integer.parseInt(id));
+		} catch (Exception e) {
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+				mo.addAttribute("val1", "failure");
+			} else {
+				mo.addAttribute("val1", "exception");
+			}
+		}
+		List<Book> books = bookService.findAllBooks();
+		mo.addAttribute("books", books);
+		mo.addAttribute("user", getPrincipal());
+		return "admin";
 	}
 
 	/**
@@ -515,28 +627,60 @@ public class AppController {
 
 	@RequestMapping(value = "/user/search-book-{txtSearch}", method = RequestMethod.GET)
 	public String searchBookForUser(@PathVariable String txtSearch, ModelMap model) {
-		Book book = new Book();
-		book = (Book) bookService.findById(txtSearch);
-
-		List<Book> books = new ArrayList<Book>();
-		books.add(book);
-
+		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
+		model.addAttribute("user", getPrincipal());
 		model.addAttribute("books", books);
 		return "users";
 	}
-	
+
 	@RequestMapping(value = "/user/checkout-book-{id}", method = RequestMethod.GET)
-	public String checkoutBookForUser(@PathVariable String id, ModelMap model) {
+	public String checkoutBookForUser(@PathVariable("id") String id, @RequestParam("name") String username,
+			ModelMap model) {
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
-	
-        Date dueDate = DateUtils.addMonths(new Date(), 1);
-        //created = LocalDate.now();
-        //System.out.println("Date : " +dueDate);
-        
-		model.addAttribute("due",dueDate.toString());
-		model.addAttribute("book",book);
-		//model.addAttribute("widget",created);
+
+		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		User user = userService.findByEmail(username);
+
+		model.addAttribute("userid", user.getId());
+		model.addAttribute("user", getPrincipal());
+		model.addAttribute("due", dueDate.toString());
+		model.addAttribute("book", book);
 		return "bookCheckoutWindow";
+	}
+
+	@RequestMapping(value = "/user/viewCheckedOutBooks", method = RequestMethod.GET)
+	public String userCheckedOutBooks(@RequestParam("name") String user, ModelMap model) {
+
+		User current_user = userService.findByEmail(user);
+		List<Checkout> checkedOutBooksList = checkoutService.findByUserId(current_user.getId());
+		List<Book> books = new ArrayList<Book>();
+		for (Checkout checkout : checkedOutBooksList) {
+			books.add(checkout.getBook());
+		}
+		model.addAttribute("books", books);
+		model.addAttribute("user", getPrincipal());
+		return "checkedOutBooks";
+	}
+
+	@RequestMapping(value = "/return-book-{id}", method = RequestMethod.GET)
+	public String returnBook(@PathVariable("id") String id, @RequestParam("name") String username, ModelMap model) {
+		Book book = new Book();
+		book = (Book) bookService.findById(id);
+		User user = userService.findByEmail(username);
+		Checkout returnCopy = new Checkout();
+		List<Checkout> chCopies = checkoutService.findByUserId(user.getId());
+		for (Checkout checkout : chCopies) {
+			if (checkout.getUserId() == user.getId()) {
+				returnCopy = checkout;
+				break;
+			}
+		}
+		System.out.println(returnCopy);
+		checkoutService.removeCheckout(returnCopy);
+		model.addAttribute("userid", user.getId());
+		model.addAttribute("user", getPrincipal());
+		model.addAttribute("book", book);
+		return "checkedOutBooks";
 	}
 }

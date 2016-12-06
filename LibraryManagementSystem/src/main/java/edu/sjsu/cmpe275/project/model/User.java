@@ -61,7 +61,7 @@ public class User implements Serializable {
 	@Column(name = "UNIVERSITY_ID", nullable = false)
 	private String uId;
 
-	@NotEmpty
+//	@NotEmpty
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "APP_USER_USER_PROFILE", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = {
 			@JoinColumn(name = "USER_PROFILE_ID") })

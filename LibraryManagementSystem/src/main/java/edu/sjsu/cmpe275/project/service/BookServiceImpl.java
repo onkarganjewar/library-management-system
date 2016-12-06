@@ -31,37 +31,24 @@ public class BookServiceImpl implements BookService {
 	public List<Book> findByTitle(String title) {
 		return bookDao.findByTitle(title);
 	}
-
 	@Override
-	public boolean saveBook(Book book) {
+	public Integer saveBook(Book book) {
 		List<Book> existingBooks = bookDao.findByTitle(book.getTitle());
-		if (existingBooks != null && existingBooks.size() > 0 ) {
+		if (existingBooks != null && !existingBooks.isEmpty()) {
 			for (Book b : existingBooks) {
 				if (b.getTitle().equals(book.getTitle()) && b.getPublisher().equals(book.getPublisher()) && b.getAuthor().equals(book.getAuthor())) {
-					return false;
+					return -1;
 				}
 			}
 		}
 		bookDao.save(book);
-		return true;
+		System.out.println("Book ID = "+book.getId());
+		return book.getId();
 	}
 
 	@Override
 	public void updateBook(Book book) {
 		sessionFactory.getCurrentSession().update(book);
-//		Book entity = bookDao.findbyId(book.getId().toString());
-//		if (entity != null) {
-//			entity.setAuthor(book.getAuthor());
-//			entity.setAvailability(book.getAvailability());
-//			entity.setCallNumber(book.getCallNumber());
-//			entity.setCopies(book.getCopies());
-//			entity.setKeywords(book.getKeywords());
-//			entity.setLibraryLocation(book.getLibraryLocation());
-//			entity.setPublicationYear(book.getPublicationYear());
-//			entity.setPublisher(book.getPublisher());
-//			entity.setTitle(book.getTitle());
-//			entity.setCheckoutCopies(book.getCheckoutCopies());
-//		}
 	}
 
 	@Override

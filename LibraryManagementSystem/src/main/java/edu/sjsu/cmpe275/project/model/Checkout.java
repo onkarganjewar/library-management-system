@@ -40,7 +40,6 @@ public class Checkout implements Serializable {
 
 	@ManyToOne
 	@MapsId("bookId")
-	@Cascade({ CascadeType.ALL })
 	@JoinColumn(name = "book_id")
 	private Book book;
 
@@ -50,7 +49,6 @@ public class Checkout implements Serializable {
 
 
 	@MapsId("userId")
-	@Cascade({ CascadeType.ALL })
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -143,6 +141,6 @@ public class Checkout implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "Checkout [Book Id=" + bookId + ", User Id=" + userId + ", " + copy + "]";
+		return "Checkout [Book Id=" + bookId + ", User Id=" + userId + ", Date= "+ checkoutDate+ "," + copy + "]";
 	}
 }

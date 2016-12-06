@@ -14,7 +14,7 @@
  
 <body>
     <div class="generic-container">
-       <div class="well lead">Book Registration Form</div>
+       <div class="well lead">Book Modification Form</div>
         <form:form method="POST" modelAttribute="book" class="form-horizontal">
             <form:input type="hidden" path="id" id="id"/>
              
@@ -42,30 +42,6 @@
                 </div>
             </div>
           
-            <div class="row">
-                <div class="form-group col-md-12">
-                    <label class="col-md-3 control-lable" for="copies">Copies</label>
-                    <div class="col-md-7">
-                        <input type="text" name="cn" id="copies" class="form-control input-sm" value = ${copies }>
-                        <div class="has-error">
-                            <form:errors path="copies" class="help-inline"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-     
-            <div class="row">
-                <div class="form-group col-md-12">
-                    <label class="col-md-3 control-lable" for="availability">Availability</label>
-                    <div class="col-md-7">
-                        <form:input type="text" path="availability" id="availability" class="form-control input-sm" value="Available" readonly="true"/>
-                        <div class="has-error">
-                            <form:errors path="availability" class="help-inline"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-     
             <div class="row">
                 <div class="form-group col-md-12">
                     <label class="col-md-3 control-lable" for="keywords">Keywords</label>

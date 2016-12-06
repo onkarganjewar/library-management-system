@@ -45,7 +45,6 @@ public class Book implements Serializable {
 	private List<BookCopy> copies;
 
 	@Column
-//	@Cascade({ CascadeType.ALL })
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
 	private List<Checkout> checkoutCopies;
 

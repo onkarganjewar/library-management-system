@@ -14,7 +14,7 @@ public interface BookService {
 
     List<Book> findByTitle(String title);
 
-    boolean saveBook(Book book);
+    Integer saveBook(Book book);
 
     void updateBook (Book book);
 

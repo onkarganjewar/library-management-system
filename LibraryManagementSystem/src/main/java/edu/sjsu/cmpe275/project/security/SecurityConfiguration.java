@@ -52,11 +52,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/edit-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 		http.authorizeRequests().antMatchers("/delete-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 
+//		.antMatchers("/newuser/**", "/delete-user-*").access("hasRole('ADMIN')").antMatchers("/edit-user-*")
+//		.access("hasRole('ADMIN')").	
 		
-		http.authorizeRequests().antMatchers("/", "/list")
+//		http.authorizeRequests()
+//            .anyRequest().authenticated()
+//        	.and().formLogin().loginPage("/login")
+//			.loginProcessingUrl("/login").successHandler(customSuccessHandler).failureHandler(authenticationFailureHandler)
+//			.usernameParameter("email").passwordParameter("password").and()
+//			.rememberMe().rememberMeParameter("remember-me").tokenRepository(tokenRepository)
+//			.tokenValiditySeconds(86400).and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+		
+		http.authorizeRequests().antMatchers("/")
 				.access("hasRole('USER') or hasRole('ADMIN')")
-				.antMatchers("/newuser/**", "/delete-user-*").access("hasRole('ADMIN')").antMatchers("/edit-user-*")
-				.access("hasRole('ADMIN')").and().formLogin().loginPage("/login")
+				.and().formLogin().loginPage("/login")
 				.loginProcessingUrl("/login").successHandler(customSuccessHandler).failureHandler(authenticationFailureHandler)
 				.usernameParameter("email").passwordParameter("password").and()
 				.rememberMe().rememberMeParameter("remember-me").tokenRepository(tokenRepository)
