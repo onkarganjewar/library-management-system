@@ -49,6 +49,7 @@ import ch.qos.logback.core.net.SyslogOutputStream;
 import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
+import edu.sjsu.cmpe275.project.notification.BookNotification;
 import edu.sjsu.cmpe275.project.notification.CustomMailSender;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.CheckoutService;
@@ -72,6 +73,9 @@ import edu.sjsu.cmpe275.project.model.MyCalendar;
 @RequestMapping("/")
 @SessionAttributes("roles")
 public class AppController {
+	
+	@Autowired
+	BookNotification bookNotification;
 
 	@Autowired
 	UserService userService;
@@ -251,6 +255,12 @@ public class AppController {
 			return "Failure";
 		}
 
+		try {
+			bookNotification.sendMail(checkout.getUser(),checkout, 0);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// Update the respective book and user entities to 
 		// avoid making them transient 
 		bookService.updateBook(book);
@@ -318,7 +328,7 @@ public class AppController {
 		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
 
 		try {
-			futures.add(mailSender.sendMail(user, getAppUrl(request)));
+			futures.add(mailSender.sendMail(user, getAppUrl(request),0));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -334,7 +344,7 @@ public class AppController {
 	}
 
 	@RequestMapping(value = "/registrationConfirm.html", method = RequestMethod.GET)
-	public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token) {
+	public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token, final HttpServletRequest req) {
 		Locale locale = request.getLocale();
 
 		VerificationToken verificationToken = userService.getVerificationToken(token);
@@ -356,13 +366,15 @@ public class AppController {
 		user.setEnabled(true);
 		userService.updateUser(user);
 
-		// try {
-		// futures.add(mailSender.sendMail(user, getAppUrl(request)));
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		return "login";
+		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
+
+		 try {
+		 futures.add(mailSender.sendMail(user, getAppUrl(req),1));
+		 } catch (InterruptedException e) {
+		 // TODO Auto-generated catch block
+		 e.printStackTrace();
+		 }
+		return "activateRegistration";
 	}
 
 	private String getAppUrl(HttpServletRequest request) {
@@ -794,6 +806,12 @@ public class AppController {
 		}
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
+		try {
+			bookNotification.sendMail(returnCopy.getUser(),returnCopy, 1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		model.addAttribute("val1", "success");
 		model.addAttribute("userid", user.getId());
 		String email_user=getPrincipal();
