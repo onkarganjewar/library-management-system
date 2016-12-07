@@ -15,6 +15,8 @@ $(document).ready(function() {
 			alert("Book Cannot be deleted. It is checked out by a patron.");
 		else if (val == "exception")
 			alert("Something went wrong. Please try again.");
+		else if(val=="Success")
+			alert("Book Deleted successfully.")
 		
 	
 	

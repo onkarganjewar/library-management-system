@@ -15,8 +15,8 @@
 				success: function (data) {
 					console.log(data);
 					if (data == "Success") {
-						alert("Book Checked out successfully");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
+						alert("Book Checked out successfully.Email regarding the book details will be sent to you shortly.");
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/confirmedCheckout?bookId="+ $('#id').val() +"&&userId=" +$('#userid').val();
 						window.location.replace(url);
 					} else if (data == "Duplicate") {
 						alert("The book is already issued by you. Please checkout a different book.");
@@ -55,8 +55,8 @@
 	</div>
 	</div>
 	<div class="panel panel-default">
-		
-		<div class="panel-heading"><span class="lead">Check Out Details</span></div>
+		<input type="hidden" id="useremail" value="${useremail }">
+		<div class="panel-heading"><span class="lead">Please Verify Checkout Details</span></div>
 		<!-- Default Panel Contents -->
 		<form:form method="POST" modelAttribute="book" class="form-horizontal">
             <form:input type="hidden" path="id" id="id"/>
@@ -148,7 +148,7 @@
             
             <div class="row">
                 <div class="form-actions floatRight">
-                  	 <input type="button" class="btn btn-success custom-width" value="Checkout" id="Checkout" name="Checkout">or <a href="<c:url value='/home' />">Cancel</a>
+                  	 <input type="button" class="btn btn-success custom-width" value="Checkout" id="Checkout" name="Checkout">or <a href="<c:url value='/home' />" class="btn btn-danger custom-width">Cancel</a>
                 </div>
             </div>
         </form:form>

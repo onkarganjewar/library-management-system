@@ -34,7 +34,8 @@ $(document).ready(function() {
 		<div class="form-group row">
  			 <div class="col-xs-6">
     		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name">
-				<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;" />  			
+				<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;" />  
+				<input type="hidden" name ="useremail" id="useremail" value="${useremail }">	
 			</div>
 		</div>
 		<div id="divResult">
@@ -59,7 +60,7 @@ $(document).ready(function() {
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
 						<sec:authorize access="hasRole('USER')">
-							<td><a href="<c:url value='/user/checkout-book-${book.id}?name=${user }'/>" class="btn btn-success custom-width">Checkout</a></td>
+							<td><a href="<c:url value='/user/checkout-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Checkout</a></td>
 						</sec:authorize>
 					</tr>
 				</c:forEach>
@@ -69,7 +70,7 @@ $(document).ready(function() {
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/user/viewCheckedOutBooks?name=${user}' />" class="btn btn-primary" >View Checked Out Books</a>
+			<a href="<c:url value='/user/viewCheckedOutBooks?name=${useremail}' />" class="btn btn-primary" >View Checked Out Books</a>
 		</div>
 	</sec:authorize>
 </body>

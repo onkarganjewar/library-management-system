@@ -36,7 +36,7 @@ public class BookServiceImpl implements BookService {
 		List<Book> existingBooks = bookDao.findByTitle(book.getTitle());
 		if (existingBooks != null && !existingBooks.isEmpty()) {
 			for (Book b : existingBooks) {
-				if (b.getTitle().equals(book.getTitle()) && b.getPublisher().equals(book.getPublisher()) && b.getAuthor().equals(book.getAuthor())) {
+				if (b.getTitle().equals(book.getTitle()) && b.getPublisher().equals(book.getPublisher()) && b.getAuthor().equals(book.getAuthor()) && b.getCallNumber().equals(book.getCallNumber())) {
 					return -1;
 				}
 			}

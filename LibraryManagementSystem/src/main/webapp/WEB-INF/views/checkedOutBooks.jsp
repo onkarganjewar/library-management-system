@@ -2,6 +2,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	
+		var val = $('#val1').val();
+		console.log(val);
+		if (val == "success")
+			alert("Book returned succesfully.");
+		
+		
+});
+
+
+</script>
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -22,6 +35,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading"><span class="lead">List of Checked Out Books</span></div>
 		<!-- Default Panel Contents -->
+		<input type="hidden" id="val1" value="${val1 }">
 		<table class="table table-hover">
 			<thead>
 				<tr>
@@ -38,7 +52,7 @@
 						<td>${book.author}</td>
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
-						<td><a href="<c:url value='/return-book-${book.id}?name=${user}'/>" class="btn btn-success custom-width">Return</a></td>
+						<td><a href="<c:url value='/return-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Return</a></td>
 						
 					</tr>
 				</c:forEach>

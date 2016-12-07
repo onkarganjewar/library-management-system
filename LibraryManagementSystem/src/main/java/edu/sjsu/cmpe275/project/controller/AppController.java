@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
@@ -114,6 +115,10 @@ public class AppController {
 	public String adminPage(ModelMap model) {
 		List<Book> books = bookService.findAllBooks();
 		model.addAttribute("books", books);
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		model.addAttribute("user", currentuser.getFirstName());
+
 		return "admin";
 	}
 
@@ -255,7 +260,10 @@ public class AppController {
 	}
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public String usersPage(ModelMap model) {
-		model.addAttribute("user", getPrincipal());
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		model.addAttribute("user", currentuser.getFirstName());
+		model.addAttribute("useremail", getPrincipal());
 		return "users";
 	}
 
@@ -567,19 +575,51 @@ public class AppController {
 	@RequestMapping(value = { "/delete-book-{id}" }, method = RequestMethod.GET)
 	public String deleteBook(@PathVariable String id, ModelMap mo) {
 
+		boolean exceptionOccured = false;
 		try {
 			bookService.deleteBook(Integer.parseInt(id));
 		} catch (Exception e) {
+			exceptionOccured  = true;
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
 				mo.addAttribute("val1", "failure");
 			} else {
 				mo.addAttribute("val1", "exception");
 			}
 		}
+		
+		if (!exceptionOccured) 
+			mo.addAttribute("val1","Success");
 		List<Book> books = bookService.findAllBooks();
 		mo.addAttribute("books", books);
-		mo.addAttribute("user", getPrincipal());
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		mo.addAttribute("user", currentuser.getFirstName());
 		return "admin";
+	}
+	
+	@RequestMapping(value = { "/delete-book-search-{id}" }, method = RequestMethod.GET)
+	public String deleteBookFromSearch(@PathVariable String id,@RequestParam("name") String bookTitle, ModelMap mo) {
+
+		boolean exceptionOccured = false;
+		try {
+			bookService.deleteBook(Integer.parseInt(id));
+		} catch (Exception e) {
+			exceptionOccured  = true;
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+				mo.addAttribute("val1", "failure");
+			} else {
+				mo.addAttribute("val1", "exception");
+			}
+		}
+		
+		if (!exceptionOccured) 
+			mo.addAttribute("val1","Success");
+		List<Book> books = (List<Book>) bookService.findByTitle(bookTitle);
+		mo.addAttribute("books", books);
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		mo.addAttribute("user", currentuser.getFirstName());
+		return "searchResults";
 	}
 
 	/**
@@ -636,14 +676,20 @@ public class AppController {
 		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
 
 		model.addAttribute("books", books);
-		return "admin";
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		model.addAttribute("user", currentuser.getFirstName());
+		return "searchResults";
 	}
 
 	@RequestMapping(value = "/user/search-book-{txtSearch}", method = RequestMethod.GET)
 	public String searchBookForUser(@PathVariable String txtSearch, ModelMap model) {
 		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
-		model.addAttribute("user", getPrincipal());
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("books", books);
+		model.addAttribute("useremail", getPrincipal());
 		return "users";
 	}
 
@@ -657,7 +703,7 @@ public class AppController {
 		User user = userService.findByEmail(username);
 
 		model.addAttribute("userid", user.getId());
-		model.addAttribute("user", getPrincipal());
+		model.addAttribute("user", user.getFirstName());
 		model.addAttribute("due", dueDate.toString());
 		model.addAttribute("book", book);
 		return "bookCheckoutWindow";
@@ -673,7 +719,10 @@ public class AppController {
 			books.add(checkout.getBook());
 		}
 		model.addAttribute("books", books);
-		model.addAttribute("user", getPrincipal());
+		String email_user=getPrincipal();
+		User currentuser=userService.findByEmail(email_user);
+		model.addAttribute("user", currentuser.getFirstName());
+		model.addAttribute("useremail", getPrincipal());
 		return "checkedOutBooks";
 	}
 
@@ -685,16 +734,39 @@ public class AppController {
 		Checkout returnCopy = new Checkout();
 		List<Checkout> chCopies = checkoutService.findByUserId(user.getId());
 		for (Checkout checkout : chCopies) {
-			if (checkout.getUserId() == user.getId()) {
+			if (checkout.getUserId() == user.getId() && checkout.getBookId() == book.getId()) {
 				returnCopy = checkout;
 				break;
 			}
 		}
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
+		model.addAttribute("val1", "success");
 		model.addAttribute("userid", user.getId());
-		model.addAttribute("user", getPrincipal());
-		model.addAttribute("book", book);
+		String email_user=getPrincipal();
+		model.addAttribute("user", user.getFirstName());
+		List<Checkout> checkedOutBooks = checkoutService.findByUserId(user.getId());
+		List<Book> books = new ArrayList<Book>();
+		for (Checkout checkout : checkedOutBooks) {
+			books.add(checkout.getBook());
+		}
+		model.addAttribute("books", books);
 		return "checkedOutBooks";
+	}
+	@RequestMapping(value = "/confirmedCheckout", method = RequestMethod.GET)
+	public String confirmedcheckout(@RequestParam("bookId") String id, @RequestParam("userId") String userid, ModelMap model) {
+		System.out.println("BOOK"+id+"USER"+userid);
+		Book book = new Book();
+		book = (Book) bookService.findById(id);
+
+		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		User user = userService.findById(Integer.parseInt(userid));
+		
+		model.addAttribute("useremail", getPrincipal());
+		model.addAttribute("userid", user.getId());
+		model.addAttribute("user", user.getFirstName());
+		model.addAttribute("due", dueDate.toString());
+		model.addAttribute("book", book);
+		return "confirmedCheckoutScreen";
 	}
 }
