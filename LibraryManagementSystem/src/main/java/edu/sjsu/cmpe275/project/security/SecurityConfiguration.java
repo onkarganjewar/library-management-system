@@ -47,22 +47,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests().antMatchers("/demo*","/resources/**","/badUser*","/registrationConfirm*", "/signup").permitAll();
 		http.authorizeRequests().antMatchers("/home").access("hasRole('USER')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
-		http.authorizeRequests().antMatchers("/newBook").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+		http.authorizeRequests().antMatchers("/newBook*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+		http.authorizeRequests().antMatchers("/return*","/confirmed*","/user*").access("hasRole('USER')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 		
-		http.authorizeRequests().antMatchers("/edit-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
-		http.authorizeRequests().antMatchers("/delete-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+		http.authorizeRequests().antMatchers("/admin").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 
-//		.antMatchers("/newuser/**", "/delete-user-*").access("hasRole('ADMIN')").antMatchers("/edit-user-*")
-//		.access("hasRole('ADMIN')").	
-		
-//		http.authorizeRequests()
-//            .anyRequest().authenticated()
-//        	.and().formLogin().loginPage("/login")
-//			.loginProcessingUrl("/login").successHandler(customSuccessHandler).failureHandler(authenticationFailureHandler)
-//			.usernameParameter("email").passwordParameter("password").and()
-//			.rememberMe().rememberMeParameter("remember-me").tokenRepository(tokenRepository)
-//			.tokenValiditySeconds(86400).and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
-		
+		http.authorizeRequests().antMatchers("/edit-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+		http.authorizeRequests().antMatchers("/bookInfo","/search*","/delete-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+
 		http.authorizeRequests().antMatchers("/")
 				.access("hasRole('USER') or hasRole('ADMIN')")
 				.and().formLogin().loginPage("/login")

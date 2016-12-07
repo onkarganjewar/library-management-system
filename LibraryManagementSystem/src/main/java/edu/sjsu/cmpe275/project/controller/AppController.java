@@ -73,7 +73,7 @@ import edu.sjsu.cmpe275.project.model.MyCalendar;
 @RequestMapping("/")
 @SessionAttributes("roles")
 public class AppController {
-	
+
 	@Autowired
 	BookNotification bookNotification;
 
@@ -91,7 +91,7 @@ public class AppController {
 
 	@Autowired
 	CheckoutDao checkoutDao;
-	
+
 	@Autowired
 	MyCalendarDao myCalendarDao;
 
@@ -119,8 +119,8 @@ public class AppController {
 	public String adminPage(ModelMap model) {
 		List<Book> books = bookService.findAllBooks();
 		model.addAttribute("books", books);
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 
 		return "admin";
@@ -190,12 +190,11 @@ public class AppController {
 				return m1.getCheckoutDate().compareTo(m2.getCheckoutDate());
 			}
 		});
-		
-		
+
 		// First remove all the records of the calendar entity
 		myCalendarDao.removeAll();
-		
-		// Get the checkout dates from the list of checked out 
+
+		// Get the checkout dates from the list of checked out
 		// books for the given user
 		for (Checkout checkout : checkoutUsersList) {
 			Calendar cal = Calendar.getInstance();
@@ -203,7 +202,7 @@ public class AppController {
 			int day = cal.get(Calendar.DAY_OF_MONTH);
 			int month = cal.get(Calendar.MONTH);
 			int year = cal.get(Calendar.YEAR);
-			
+
 			// Save all the checkout dates for the given user
 			MyCalendar myCal = new MyCalendar();
 			myCal.setDay(day);
@@ -224,16 +223,15 @@ public class AppController {
 		myCurrentCal.setMonth(currentMonth);
 		myCurrentCal.setYear(currentYear);
 
-		// Find the list of records from the MyCalendar entity 
+		// Find the list of records from the MyCalendar entity
 		// matching the current date
 		List<MyCalendar> returnCals = myCalendarDao.findByCurrentTime(myCurrentCal);
 
 		// If the user has checked out 5 books for the given day
 		// then throw error
-		if(returnCals.size() >= 5)
+		if (returnCals.size() >= 5)
 			return "DayCheckoutLimit";
 
-		
 		// Insert the new checkout record in the database
 		Checkout checkout = new Checkout();
 		checkout.setBook(book);
@@ -256,22 +254,23 @@ public class AppController {
 		}
 
 		try {
-			bookNotification.sendMail(checkout.getUser(),checkout, 0);
+			bookNotification.sendMail(checkout.getUser(), checkout, 0);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// Update the respective book and user entities to 
-		// avoid making them transient 
+		// Update the respective book and user entities to
+		// avoid making them transient
 		bookService.updateBook(book);
 		userService.updateUser(user);
 
 		return "Success";
 	}
+
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public String usersPage(ModelMap model) {
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("useremail", getPrincipal());
 		return "users";
@@ -279,7 +278,7 @@ public class AppController {
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String demoPage() {
-//		model.addAttribute("user", getPrincipal());
+		// model.addAttribute("user", getPrincipal());
 		System.out.println("ASDSDA");
 		return "login";
 	}
@@ -300,24 +299,28 @@ public class AppController {
 	public String signUp_POST(@Valid User user, BindingResult result, ModelMap model,
 			final HttpServletRequest request) {
 
-		Set<UserProfile> userProfiles = new HashSet<UserProfile>();
-		
+		Set<UserProfile> profileSet = new HashSet<UserProfile>();
+
 		customValidator.validate(user, result);
 		if (result.hasErrors()) {
 			return "signup";
 		}
-		// /** If the user owns an sjsu email id then he/she is automatically
-		// gets a librarian account. */
-		if (user.getEmail().contains("@sjsu.edu")) {
-			UserProfile profile = new UserProfile();
-			profile = userProfileService.findByType("ADMIN");
-			userProfiles.add(profile);
-			user.setUserProfiles(userProfiles);
-		} else {
-			UserProfile profile = new UserProfile();
-			profile = userProfileService.findByType("USER");
-			userProfiles.add(profile);
-			user.setUserProfiles(userProfiles);
+
+		if (user.getUserProfiles().isEmpty()) {
+			// /** If the user owns an sjsu email id then he/she is
+			// automatically
+			// gets a librarian account. */
+			if (user.getEmail().contains("@sjsu.edu")) {
+				UserProfile profile = new UserProfile();
+				profile = userProfileService.findByType("ADMIN");
+				profileSet.add(profile);
+				user.setUserProfiles(profileSet);
+			} else {
+				UserProfile profile = new UserProfile();
+				profile = userProfileService.findByType("USER");
+				profileSet.add(profile);
+				user.setUserProfiles(profileSet);
+			}
 		}
 
 		userService.saveUser(user);
@@ -328,7 +331,7 @@ public class AppController {
 		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
 
 		try {
-			futures.add(mailSender.sendMail(user, getAppUrl(request),0));
+			futures.add(mailSender.sendMail(user, getAppUrl(request), 0));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -344,7 +347,8 @@ public class AppController {
 	}
 
 	@RequestMapping(value = "/registrationConfirm.html", method = RequestMethod.GET)
-	public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token, final HttpServletRequest req) {
+	public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token,
+			final HttpServletRequest req) {
 		Locale locale = request.getLocale();
 
 		VerificationToken verificationToken = userService.getVerificationToken(token);
@@ -368,12 +372,12 @@ public class AppController {
 
 		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
 
-		 try {
-		 futures.add(mailSender.sendMail(user, getAppUrl(req),1));
-		 } catch (InterruptedException e) {
-		 // TODO Auto-generated catch block
-		 e.printStackTrace();
-		 }
+		try {
+			futures.add(mailSender.sendMail(user, getAppUrl(req), 1));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return "activateRegistration";
 	}
 
@@ -591,45 +595,45 @@ public class AppController {
 		try {
 			bookService.deleteBook(Integer.parseInt(id));
 		} catch (Exception e) {
-			exceptionOccured  = true;
+			exceptionOccured = true;
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
 				mo.addAttribute("val1", "failure");
 			} else {
 				mo.addAttribute("val1", "exception");
 			}
 		}
-		
-		if (!exceptionOccured) 
-			mo.addAttribute("val1","Success");
+
+		if (!exceptionOccured)
+			mo.addAttribute("val1", "Success");
 		List<Book> books = bookService.findAllBooks();
 		mo.addAttribute("books", books);
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		mo.addAttribute("user", currentuser.getFirstName());
 		return "admin";
 	}
-	
+
 	@RequestMapping(value = { "/delete-book-search-{id}" }, method = RequestMethod.GET)
-	public String deleteBookFromSearch(@PathVariable String id,@RequestParam("name") String bookTitle, ModelMap mo) {
+	public String deleteBookFromSearch(@PathVariable String id, @RequestParam("name") String bookTitle, ModelMap mo) {
 
 		boolean exceptionOccured = false;
 		try {
 			bookService.deleteBook(Integer.parseInt(id));
 		} catch (Exception e) {
-			exceptionOccured  = true;
+			exceptionOccured = true;
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
 				mo.addAttribute("val1", "failure");
 			} else {
 				mo.addAttribute("val1", "exception");
 			}
 		}
-		
-		if (!exceptionOccured) 
-			mo.addAttribute("val1","Success");
+
+		if (!exceptionOccured)
+			mo.addAttribute("val1", "Success");
 		List<Book> books = (List<Book>) bookService.findByTitle(bookTitle);
 		mo.addAttribute("books", books);
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		mo.addAttribute("user", currentuser.getFirstName());
 		return "searchResults";
 	}
@@ -645,8 +649,8 @@ public class AppController {
 
 	@RequestMapping(value = "/bookInfo-{isbn}", method = RequestMethod.GET)
 	public String getBookInfo(@PathVariable String isbn, ModelMap model) throws Exception {
-		//String isbn = "0201633612";
-//		@RequestParam("isbn") String isbn
+		// String isbn = "0201633612";
+		// @RequestParam("isbn") String isbn
 		URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
 
 		// read from the URL
@@ -662,35 +666,33 @@ public class AppController {
 		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
 		System.out.println("Title = " + title);
 		String titleString = title.toString();
-		
+
 		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
 		System.out.println("Publisher = " + publisher);
-		String publisherString=publisher.toString();
+		String publisherString = publisher.toString();
 
 		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
 				.get("publishedDate");
 		System.out.println("Date published = " + publishDate);
-		String publishedString=publishDate.toString();
+		String publishedString = publishDate.toString();
 
 		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
 		int limit = arr.length();
 		List<String> authorsList = new ArrayList<String>();
 
-		
 		for (int i = 0; i < limit; i++) {
 			Object val = arr.get(i);
 			// System.out.println(val);
 			authorsList.add(val.toString());
 		}
-		String authorString ="";
-		
+		String authorString = "";
+
 		for (String string : authorsList) {
 			System.out.println("Authors name = " + string);
 			authorString += string + ", ";
 		}
-		
+
 		System.out.println(authorString);
-		
 
 		Book book = new Book();
 		book.setPublisher(publisherString);
@@ -700,7 +702,7 @@ public class AppController {
 		model.addAttribute("book", book);
 		return "newBook";
 	}
-	
+
 	@RequestMapping(value = { "/bookInfo-{isbn}" }, method = RequestMethod.POST)
 	public String newBookByISBN_POST(Book book, BindingResult result, ModelMap model, final HttpServletRequest request,
 			@ModelAttribute("copies") String copy) {
@@ -741,8 +743,8 @@ public class AppController {
 		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
 
 		model.addAttribute("books", books);
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		return "searchResults";
 	}
@@ -750,8 +752,8 @@ public class AppController {
 	@RequestMapping(value = "/user/search-book-{txtSearch}", method = RequestMethod.GET)
 	public String searchBookForUser(@PathVariable String txtSearch, ModelMap model) {
 		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("books", books);
 		model.addAttribute("useremail", getPrincipal());
@@ -784,8 +786,8 @@ public class AppController {
 			books.add(checkout.getBook());
 		}
 		model.addAttribute("books", books);
-		String email_user=getPrincipal();
-		User currentuser=userService.findByEmail(email_user);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("useremail", getPrincipal());
 		return "checkedOutBooks";
@@ -807,14 +809,14 @@ public class AppController {
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
 		try {
-			bookNotification.sendMail(returnCopy.getUser(),returnCopy, 1);
+			bookNotification.sendMail(returnCopy.getUser(), returnCopy, 1);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		model.addAttribute("val1", "success");
 		model.addAttribute("userid", user.getId());
-		String email_user=getPrincipal();
+		String email_user = getPrincipal();
 		model.addAttribute("user", user.getFirstName());
 		List<Checkout> checkedOutBooks = checkoutService.findByUserId(user.getId());
 		List<Book> books = new ArrayList<Book>();
@@ -824,15 +826,17 @@ public class AppController {
 		model.addAttribute("books", books);
 		return "checkedOutBooks";
 	}
+
 	@RequestMapping(value = "/confirmedCheckout", method = RequestMethod.GET)
-	public String confirmedcheckout(@RequestParam("bookId") String id, @RequestParam("userId") String userid, ModelMap model) {
-		System.out.println("BOOK"+id+"USER"+userid);
+	public String confirmedcheckout(@RequestParam("bookId") String id, @RequestParam("userId") String userid,
+			ModelMap model) {
+		System.out.println("BOOK" + id + "USER" + userid);
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
 
 		Date dueDate = DateUtils.addMonths(new Date(), 1);
 		User user = userService.findById(Integer.parseInt(userid));
-		
+
 		model.addAttribute("useremail", getPrincipal());
 		model.addAttribute("userid", user.getId());
 		model.addAttribute("user", user.getFirstName());
