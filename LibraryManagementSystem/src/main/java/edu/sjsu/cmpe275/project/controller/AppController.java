@@ -49,6 +49,7 @@ import ch.qos.logback.core.net.SyslogOutputStream;
 import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
+import edu.sjsu.cmpe275.project.notification.BookNotification;
 import edu.sjsu.cmpe275.project.notification.CustomMailSender;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.CheckoutService;
@@ -72,6 +73,9 @@ import edu.sjsu.cmpe275.project.model.MyCalendar;
 @RequestMapping("/")
 @SessionAttributes("roles")
 public class AppController {
+	
+	@Autowired
+	BookNotification bookNotification;
 
 	@Autowired
 	UserService userService;
@@ -174,7 +178,7 @@ public class AppController {
 		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
 		if (checkoutUsersList != null && !checkoutUsersList.isEmpty()) {
 			if (checkoutUsersList.size() > 10)
-				return "Failure";
+				return "TotalCheckoutLimit";
 			for (Checkout checkout : checkoutUsersList) {
 				Date userCheckOutsDate = checkout.getCheckoutDate();
 				dates.add(userCheckOutsDate);
@@ -226,8 +230,8 @@ public class AppController {
 
 		// If the user has checked out 5 books for the given day
 		// then throw error
-		if(returnCals.size() > 5)
-			return "Failure";
+		if(returnCals.size() >= 5)
+			return "DayCheckoutLimit";
 
 		
 		// Insert the new checkout record in the database
@@ -251,6 +255,12 @@ public class AppController {
 			return "Failure";
 		}
 
+		try {
+			bookNotification.sendMail(checkout.getUser(),checkout, 0);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// Update the respective book and user entities to 
 		// avoid making them transient 
 		bookService.updateBook(book);
@@ -300,7 +310,7 @@ public class AppController {
 		// gets a librarian account. */
 		if (user.getEmail().contains("@sjsu.edu")) {
 			UserProfile profile = new UserProfile();
-			profile.setType("ADMIN");
+			profile = userProfileService.findByType("ADMIN");
 			userProfiles.add(profile);
 			user.setUserProfiles(userProfiles);
 		} else {
@@ -318,7 +328,7 @@ public class AppController {
 		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
 
 		try {
-			futures.add(mailSender.sendMail(user, getAppUrl(request)));
+			futures.add(mailSender.sendMail(user, getAppUrl(request),0));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -334,7 +344,7 @@ public class AppController {
 	}
 
 	@RequestMapping(value = "/registrationConfirm.html", method = RequestMethod.GET)
-	public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token) {
+	public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token, final HttpServletRequest req) {
 		Locale locale = request.getLocale();
 
 		VerificationToken verificationToken = userService.getVerificationToken(token);
@@ -356,13 +366,15 @@ public class AppController {
 		user.setEnabled(true);
 		userService.updateUser(user);
 
-		// try {
-		// futures.add(mailSender.sendMail(user, getAppUrl(request)));
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		return "login";
+		Collection<Future<Void>> futures = new ArrayList<Future<Void>>();
+
+		 try {
+		 futures.add(mailSender.sendMail(user, getAppUrl(req),1));
+		 } catch (InterruptedException e) {
+		 // TODO Auto-generated catch block
+		 e.printStackTrace();
+		 }
+		return "activateRegistration";
 	}
 
 	private String getAppUrl(HttpServletRequest request) {
@@ -631,9 +643,10 @@ public class AppController {
 		return authenticationTrustResolver.isAnonymous(authentication);
 	}
 
-	@RequestMapping(value = "/bookInfo", method = RequestMethod.GET)
-	public String getBookInfo(@RequestParam("isbn") String isbn) throws Exception {
-
+	@RequestMapping(value = "/bookInfo-{isbn}", method = RequestMethod.GET)
+	public String getBookInfo(@PathVariable String isbn, ModelMap model) throws Exception {
+		//String isbn = "0201633612";
+//		@RequestParam("isbn") String isbn
 		URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
 
 		// read from the URL
@@ -648,27 +661,79 @@ public class AppController {
 
 		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
 		System.out.println("Title = " + title);
-
+		String titleString = title.toString();
+		
 		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
 		System.out.println("Publisher = " + publisher);
+		String publisherString=publisher.toString();
 
 		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
 				.get("publishedDate");
 		System.out.println("Date published = " + publishDate);
+		String publishedString=publishDate.toString();
 
 		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
 		int limit = arr.length();
 		List<String> authorsList = new ArrayList<String>();
 
+		
 		for (int i = 0; i < limit; i++) {
 			Object val = arr.get(i);
 			// System.out.println(val);
 			authorsList.add(val.toString());
 		}
+		String authorString ="";
+		
 		for (String string : authorsList) {
 			System.out.println("Authors name = " + string);
+			authorString += string + ", ";
 		}
-		return null;
+		
+		System.out.println(authorString);
+		
+
+		Book book = new Book();
+		book.setPublisher(publisherString);
+		book.setPublicationYear(publishedString);
+		book.setTitle(titleString);
+		book.setAuthor(authorString);
+		model.addAttribute("book", book);
+		return "newBook";
+	}
+	
+	@RequestMapping(value = { "/bookInfo-{isbn}" }, method = RequestMethod.POST)
+	public String newBookByISBN_POST(Book book, BindingResult result, ModelMap model, final HttpServletRequest request,
+			@ModelAttribute("copies") String copy) {
+
+		boolean NaN = false;
+		int copies = 0;
+		// Check the input no of copies
+		try {
+			copies = Integer.parseInt(copy);
+		} catch (NumberFormatException e) {
+			// If not a valid number or null string, then create only one copy
+			// by default
+			NaN = true;
+		}
+		Integer returnBookId = bookService.saveBook(book);
+		Book returnBook = bookService.findById(Integer.toString(returnBookId));
+
+		if (returnBookId < 0) {
+			return "Error";
+		}
+		if (!NaN) {
+			// If a valid number then create the specified number of copies
+			for (int i = 0; i < copies; i++) {
+				BookCopy bookCopy = new BookCopy();
+				bookCopy.setBooks(returnBook);
+				bookCopyDao.save(bookCopy);
+			}
+		} else {
+			BookCopy bookCopy = new BookCopy();
+			bookCopy.setBooks(returnBook);
+			bookCopyDao.save(bookCopy);
+		}
+		return "redirect:/admin";
 	}
 
 	@RequestMapping(value = "/search-book-{txtSearch:.+}", method = RequestMethod.GET)
@@ -741,6 +806,12 @@ public class AppController {
 		}
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
+		try {
+			bookNotification.sendMail(returnCopy.getUser(),returnCopy, 1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		model.addAttribute("val1", "success");
 		model.addAttribute("userid", user.getId());
 		String email_user=getPrincipal();

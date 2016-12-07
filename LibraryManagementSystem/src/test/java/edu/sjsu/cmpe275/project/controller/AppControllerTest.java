@@ -79,7 +79,7 @@ public class AppControllerTest {
 
 	@Test
 	public void GET_SignUpTest() throws Exception {
-        this.springMvc.perform(get("/signup")
+        this.springMvc.perform(get("/demo")
         		.accept(MediaType.ALL)).andDo(print())
         		.andExpect(status().isOk()).andDo(print());
 	}

@@ -6,42 +6,6 @@
  
 <html>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#Checkout').click( function() {
-			$.ajax({
-				url : 'http://localhost:8080/Cmpe275-Library-Management-System/user/confirm-checkout-book-'+ $('#id').val()+'?name='+$('#userid').val(),
-				type : 'GET',
-				success: function (data) {
-					console.log(data);
-					if (data == "Success") {
-						alert("Book Checked out successfully.Email regarding the book details will be sent to you shortly.");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/confirmedCheckout?bookId="+ $('#id').val() +"&&userId=" +$('#userid').val();
-						window.location.replace(url);
-					} else if (data == "Duplicate") {
-						alert("The book is already issued by you. Please checkout a different book.");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
-						window.location.replace(url);
-					} else if (data == "Failure") {
-						alert("Requested book cannot be issued right now. You will be notified as soon as the book is available.");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
-						window.location.replace(url);
-					} else if (data == "Exception") {
-						alert("Cannot issue book. Please try again.")
-					} else if (data == "DayCheckoutLimit") {
-						alert("You cannot issue more than 5 books in a day. Please try again tomorrow.")
-					} else if (data == "TotalCheckoutLimit") {
-						alert("You cannot issue more than 10 books at any time. Please return some books and try again.")
-					}
-	            },
-	            error: function (textStatus, errorThrown) {
-	                alert("Error getting the data");
-	            }
-			});
-		});
-	});
-	
-</script>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 	<title>Users page</title>
@@ -60,7 +24,7 @@
 	</div>
 	<div class="panel panel-default">
 		<input type="hidden" id="useremail" value="${useremail }">
-		<div class="panel-heading"><span class="lead">Please Verify Checkout Details</span></div>
+		<div class="panel-heading"><span class="lead">Checkout Details</span></div>
 		<!-- Default Panel Contents -->
 		<form:form method="POST" modelAttribute="book" class="form-horizontal">
             <form:input type="hidden" path="id" id="id"/>
@@ -147,15 +111,12 @@
                     </div>
                 </div>
             </div>
-            
-            
-            
-            <div class="row">
-                <div class="form-actions floatRight">
-                  	 <input type="button" class="btn btn-success custom-width" value="Checkout" id="Checkout" name="Checkout"> <a href="<c:url value='/home' />" class="btn btn-danger custom-width">Cancel</a>
-                </div>
-            </div>
         </form:form>
 	</div>
+	<sec:authorize access="hasRole('USER')">
+		<div class="well">
+			<a href="<c:url value='/home' />" class="btn btn-primary" >Return Home</a>
+		</div>
+	</sec:authorize>
 </body>
 </html>

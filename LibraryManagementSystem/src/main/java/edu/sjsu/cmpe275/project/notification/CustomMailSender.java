@@ -36,15 +36,43 @@ public class CustomMailSender {
 	private MailSender javaMailSender;
 
 	@Async
-	public Future<Void> sendMail(User user, String appUrl) throws InterruptedException {
+	public Future<Void> sendMail(User user, String appUrl, int choice) throws InterruptedException {
 
 		final String token = UUID.randomUUID().toString();
 		service.createVerificationTokenForUser(user, token);
 
-		final SimpleMailMessage email = constructEmailMessage(user, token, appUrl);
-		javaMailSender.send(email);
+		switch (choice) {
+		case 0:
+			final SimpleMailMessage email = constructEmailMessage(user, token, appUrl);
+			javaMailSender.send(email);
+			break;
+		case 1:
+			final SimpleMailMessage cEmail = constructEmailMessageComplete(user, appUrl);
+			javaMailSender.send(cEmail);
+			break;
+
+		default:
+			break;
+		}
 		System.out.println("Execute method asynchronously. " + Thread.currentThread().getName());
 		return new AsyncResult<Void>(null);
+	}
+
+	/**
+	 * @param user
+	 * @param appUrl
+	 * @return
+	 */
+	private SimpleMailMessage constructEmailMessageComplete(User user, String appUrl) {
+		final String recipientAddress = user.getEmail();
+		final String subject = "Registration Complete";
+		final SimpleMailMessage email = new SimpleMailMessage();
+		email.setTo(recipientAddress);
+		String ms = "You can now login to your account by visiting \r\n "+ appUrl + "/login";
+		email.setSubject(subject);
+		email.setText(ms);
+		email.setFrom(env.getProperty("support.email"));
+		return email;
 	}
 
 	private final SimpleMailMessage constructEmailMessage(final User user, final String token, final String appUrl) {
