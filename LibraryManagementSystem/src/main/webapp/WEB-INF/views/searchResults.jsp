@@ -54,7 +54,7 @@ $(document).ready(function() {
 				<tr>
 					<th>Publication Year</th>
 					<th>Location</th>
-					<th>Availability</th>
+					<th>Status</th>
 					<th>Author</th>
 					<th>Title</th>
 					<th>Publisher</th>

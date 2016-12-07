@@ -28,6 +28,14 @@ $(document).ready(function() {
 		var url = "http://localhost:8080/Cmpe275-Library-Management-System/search-book-"+bookId;
 				window.location.replace(url);
 	});
+		
+		$('#btnAddByISBN').click( function() {
+			console.log("button clicked");
+			var isbn = $('#txtISBN').val();
+			console.log(isbn);
+			var url = "http://localhost:8080/Cmpe275-Library-Management-System/bookInfo-"+isbn;
+					window.location.replace(url);
+		});
 });
 
 
@@ -65,7 +73,7 @@ $(document).ready(function() {
 				<tr>
 					<th>Publication Year</th>
 					<th>Location</th>
-					<th>Availability</th>
+					<th>Status</th>
 					<th>Author</th>
 					<th>Title</th>
 					<th>Publisher</th>
@@ -94,6 +102,17 @@ $(document).ready(function() {
 	<sec:authorize access="hasRole('ADMIN')">
 		<div class="well">
 			<a href="<c:url value='/newBook' />" class="btn btn-primary" >Add New Book</a>
+				
+		</div>
+		<div class="row well" style="margin:0px 0px 10px 0px;">
+  			<div class="col-lg-6">
+   				 <div class="input-group">
+     			 <span class="input-group-btn">
+       			 <button class="btn btn-primary" type="button" id="btnAddByISBN" name="btnAddByISBN">Add New Book using ISBN</button>
+      			</span>
+      				<input type="text" class="form-control" placeholder="Add ISBN" name="txtISBN" id="txtISBN">
+    			</div>
+ 			 </div>
 		</div>
 	</sec:authorize>
 </body>
