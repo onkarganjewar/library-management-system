@@ -6,7 +6,6 @@
  --%>
 <html>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
 <script type="text/javascript">
 $(document).ready(function() {
 	
@@ -18,16 +17,6 @@ $(document).ready(function() {
 			alert("Something went wrong. Please try again.");
 		else if(val=="Success")
 			alert("Book Deleted successfully.")
-		
-	
-	
-	$('#btnSearch').click( function() {
-		console.log("button clicked");
-		var bookId = $('#txtSearch').val();
-		console.log(bookId);
-		var url = "http://localhost:8080/Cmpe275-Library-Management-System/search-book-"+bookId;
-				window.location.replace(url);
-	});
 });
 
 
@@ -85,15 +74,15 @@ $(document).ready(function() {
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
 							<td><a href="<c:url value='/edit-book-${book.id}'/>" class="btn btn-success custom-width">Edit</a></td>
-							<td><a href="<c:url value='/delete-book-${book.id}'/>" class="btn btn-danger custom-width">Delete</a></td>
+							<td><a href="<c:url value='/delete-book-search-${book.id}?name=${book.title }'/>" class="btn btn-danger custom-width">Delete</a></td>
 					</tr>
 				</c:forEach>
 			</tbody>
 		</table>
 	</div>
-	<sec:authorize access="hasRole('ADMIN')">
+	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/newBook' />" class="btn btn-primary" >Add New Book</a>
+			<a href="<c:url value='/admin' />" class="btn btn-primary" >Return Back to Home</a>
 		</div>
 	</sec:authorize>
 </body>

@@ -174,7 +174,7 @@ public class AppController {
 		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
 		if (checkoutUsersList != null && !checkoutUsersList.isEmpty()) {
 			if (checkoutUsersList.size() > 10)
-				return "Failure";
+				return "TotalCheckoutLimit";
 			for (Checkout checkout : checkoutUsersList) {
 				Date userCheckOutsDate = checkout.getCheckoutDate();
 				dates.add(userCheckOutsDate);
@@ -226,8 +226,8 @@ public class AppController {
 
 		// If the user has checked out 5 books for the given day
 		// then throw error
-		if(returnCals.size() > 5)
-			return "Failure";
+		if(returnCals.size() >= 5)
+			return "DayCheckoutLimit";
 
 		
 		// Insert the new checkout record in the database
@@ -300,7 +300,7 @@ public class AppController {
 		// gets a librarian account. */
 		if (user.getEmail().contains("@sjsu.edu")) {
 			UserProfile profile = new UserProfile();
-			profile.setType("ADMIN");
+			profile = userProfileService.findByType("ADMIN");
 			userProfiles.add(profile);
 			user.setUserProfiles(userProfiles);
 		} else {
