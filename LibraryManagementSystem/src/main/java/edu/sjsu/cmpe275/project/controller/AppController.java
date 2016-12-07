@@ -57,9 +57,11 @@ import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.validation.UserValidator;
 import edu.sjsu.cmpe275.project.dao.BookCopyDao;
 import edu.sjsu.cmpe275.project.dao.CheckoutDao;
+import edu.sjsu.cmpe275.project.dao.MyCalendarDao;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
 import edu.sjsu.cmpe275.project.model.Checkout;
+import edu.sjsu.cmpe275.project.model.MyCalendar;
 
 /**
  * @author Onkar Ganjewar
@@ -85,6 +87,9 @@ public class AppController {
 
 	@Autowired
 	CheckoutDao checkoutDao;
+	
+	@Autowired
+	MyCalendarDao myCalendarDao;
 
 	@Autowired
 	CheckoutService checkoutService;
@@ -134,16 +139,6 @@ public class AppController {
 		// Get the list of checked out copies for the given book
 		List<Checkout> checkoutBooksList = checkoutService.findByBookId(bookId);
 
-		try {
-			// bookService.deleteBook(checkoutBooksList.get(0).getBook().getId());
-			// checkoutService.removeCheckout(checkoutBooksList.get(0));
-		} catch (Exception e) {
-			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-				return "Duplicate";
-			}
-			return "Failure";
-		}
-
 		// Check whether any copy of the given book is available for rent
 		if (checkoutBooksList != null && !checkoutBooksList.isEmpty()) {
 			for (Checkout checkout : checkoutBooksList) {
@@ -191,32 +186,51 @@ public class AppController {
 				return m1.getCheckoutDate().compareTo(m2.getCheckoutDate());
 			}
 		});
-		List<Integer> days = new ArrayList<Integer>();
-		List<Integer> checkedOutToday = new ArrayList<Integer>();
+		
+		
+		// First remove all the records of the calendar entity
+		myCalendarDao.removeAll();
+		
+		// Get the checkout dates from the list of checked out 
+		// books for the given user
 		for (Checkout checkout : checkoutUsersList) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(checkout.getCheckoutDate());
 			int day = cal.get(Calendar.DAY_OF_MONTH);
-			days.add(day);
-			System.out.println(checkout.getCheckoutDate());
+			int month = cal.get(Calendar.MONTH);
+			int year = cal.get(Calendar.YEAR);
+			
+			// Save all the checkout dates for the given user
+			MyCalendar myCal = new MyCalendar();
+			myCal.setDay(day);
+			myCal.setMonth(month);
+			myCal.setYear(year);
+			myCalendarDao.insert(myCal);
 		}
 
+		// Get the current date
 		Date currentDate = new Date();
 		Calendar currentCal = Calendar.getInstance();
 		currentCal.setTime(currentDate);
 		int currentDay = currentCal.get(Calendar.DAY_OF_MONTH);
-		for (Integer i : days) {
-			if (i.equals(currentDay)) {
-				checkedOutToday.add(i);
-			}
-		}
-		if (checkedOutToday.size() > 5)
+		int currentMonth = currentCal.get(Calendar.MONTH);
+		int currentYear = currentCal.get(Calendar.YEAR);
+		MyCalendar myCurrentCal = new MyCalendar();
+		myCurrentCal.setDay(currentDay);
+		myCurrentCal.setMonth(currentMonth);
+		myCurrentCal.setYear(currentYear);
+
+		// Find the list of records from the MyCalendar entity 
+		// matching the current date
+		List<MyCalendar> returnCals = myCalendarDao.findByCurrentTime(myCurrentCal);
+
+		// If the user has checked out 5 books for the given day
+		// then throw error
+		if(returnCals.size() > 5)
 			return "Failure";
 
-		for (Integer integer : checkedOutToday) {
-			System.out.println(integer);
-		}
-
+		
+		// Insert the new checkout record in the database
 		Checkout checkout = new Checkout();
 		checkout.setBook(book);
 		checkout.setCopy(diffCopies.get(0));
@@ -237,12 +251,13 @@ public class AppController {
 			return "Failure";
 		}
 
+		// Update the respective book and user entities to 
+		// avoid making them transient 
 		bookService.updateBook(book);
 		userService.updateUser(user);
 
 		return "Success";
 	}
-
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public String usersPage(ModelMap model) {
 		String email_user=getPrincipal();
@@ -251,7 +266,6 @@ public class AppController {
 		model.addAttribute("useremail", getPrincipal());
 		return "users";
 	}
-
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String demoPage() {
