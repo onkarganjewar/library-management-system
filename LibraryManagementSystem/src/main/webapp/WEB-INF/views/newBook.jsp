@@ -4,7 +4,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
  
 <html>
- 
+ <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+function checkValid(){
+	var inputCopies=$('#copies').val();
+
+	if(isNaN(inputCopies))
+	alert("Enter valid number of copies. Input value is an invalid number.");
+	}
+</script>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>Book Registration Form</title>
@@ -46,7 +54,7 @@
                 <div class="form-group col-md-12">
                     <label class="col-md-3 control-lable" for="copies">Copies</label>
                     <div class="col-md-7">
-                        <input type="text" id="copies" class="form-control input-sm" name=copies value = "${copies }" />
+                        <input type="text" id="copies" class="form-control input-sm" name=copies onblur="checkValid()" value = "${copies }" />
                         <div class="has-error">
                             <form:errors path="copies" class="help-inline"/>
                         </div>
@@ -130,10 +138,10 @@
                 <div class="form-actions floatRight">
                     <c:choose>
                         <c:when test="${edit}">
-                            <input type="submit" value="Update" class="btn btn-primary btn-sm"/> or <a href="<c:url value='/admin' />">Cancel</a>
+                            <input type="submit" value="Update" class="btn btn-primary btn-sm"/> or <a href="<c:url value='/admin'  />" class="btn btn-danger btn-sm">Cancel</a>
                         </c:when>
                         <c:otherwise>
-                            <input type="submit" value="Register" class="btn btn-primary btn-sm"/> or <a href="<c:url value='/admin' />">Cancel</a>
+                            <input type="submit" value="Register" class="btn btn-primary btn-sm"/> or <a href="<c:url value='/admin'/>" class="btn btn-danger btn-sm">Cancel</a>
                         </c:otherwise>
                     </c:choose>
                 </div>
