@@ -50,6 +50,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/newBook*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 		http.authorizeRequests().antMatchers("/return*","/confirmed*","/user*").access("hasRole('USER')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 		
+		http.authorizeRequests().antMatchers("/patron**").access("hasRole('USER')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+		http.authorizeRequests().antMatchers("/librarian**").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
+
 		http.authorizeRequests().antMatchers("/admin").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");
 
 		http.authorizeRequests().antMatchers("/edit-book-*").access("hasRole('ADMIN')").and().csrf().and().exceptionHandling().accessDeniedPage("/Access_Denied");

@@ -10,21 +10,21 @@
 	$(document).ready(function() {
 		$('#Checkout').click( function() {
 			$.ajax({
-				url : 'http://localhost:8080/Cmpe275-Library-Management-System/user/confirm-checkout-book-'+ $('#id').val()+'?name='+$('#userid').val(),
+				url : 'http://localhost:8080/Cmpe275-Library-Management-System/patron/confirm-checkout-book-'+ $('#id').val()+'?name='+$('#userid').val(),
 				type : 'GET',
 				success: function (data) {
 					console.log(data);
 					if (data == "Success") {
 						alert("Book Checked out successfully.Email regarding the book details will be sent to you shortly.");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/confirmedCheckout?bookId="+ $('#id').val() +"&&userId=" +$('#userid').val();
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/confirmedCheckout?bookId="+ $('#id').val() +"&&userId=" +$('#userid').val();
 						window.location.replace(url);
 					} else if (data == "Duplicate") {
 						alert("The book is already issued by you. Please checkout a different book.");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/home";
 						window.location.replace(url);
 					} else if (data == "Failure") {
 						alert("Requested book cannot be issued right now. You will be notified as soon as the book is available.");
-						var url = "http://localhost:8080/Cmpe275-Library-Management-System/home";
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/home";
 						window.location.replace(url);
 					} else if (data == "Exception") {
 						alert("Cannot issue book. Please try again.")
@@ -152,7 +152,7 @@
             
             <div class="row">
                 <div class="form-actions floatRight">
-                  	 <input type="button" class="btn btn-success custom-width" value="Checkout" id="Checkout" name="Checkout"> <a href="<c:url value='/home' />" class="btn btn-danger custom-width">Cancel</a>
+                  	 <input type="button" class="btn btn-success custom-width" value="Checkout" id="Checkout" name="Checkout"> <a href="<c:url value='/patron/home' />" class="btn btn-danger custom-width">Cancel</a>
                 </div>
             </div>
         </form:form>

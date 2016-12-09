@@ -115,7 +115,7 @@
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/home' />" class="btn btn-primary" >Return Home</a>
+			<a href="<c:url value='/patron/home' />" class="btn btn-primary" >Return Home</a>
 		</div>
 	</sec:authorize>
 </body>

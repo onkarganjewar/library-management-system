@@ -8,7 +8,7 @@ $(document).ready(function() {
 	$('#btnSearch').click( function() {
 		console.log("button clicked");
 		var bookId = $('#txtSearch').val();
-		var url = "http://localhost:8080/Cmpe275-Library-Management-System/user/search-book-"+bookId;
+		var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/search-book-"+bookId;
 		document.getElementById("divResult").style.visibility='visible';
 		window.location.replace(url);
 	});
@@ -60,7 +60,7 @@ $(document).ready(function() {
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
 						<sec:authorize access="hasRole('USER')">
-							<td><a href="<c:url value='/user/checkout-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Checkout</a></td>
+							<td><a href="<c:url value='/patron/checkout-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Checkout</a></td>
 						</sec:authorize>
 					</tr>
 				</c:forEach>
@@ -70,7 +70,7 @@ $(document).ready(function() {
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/user/viewCheckedOutBooks?name=${useremail}' />" class="btn btn-primary" >View Checked Out Books</a>
+			<a href="<c:url value='/patron/viewCheckedOutBooks?name=${useremail}' />" class="btn btn-primary" >View Checked Out Books</a>
 		</div>
 	</sec:authorize>
 </body>

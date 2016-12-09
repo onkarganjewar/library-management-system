@@ -3,6 +3,7 @@ package edu.sjsu.cmpe275.project.dao;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +34,13 @@ public class BookCopyDaoImpl extends AbstractDao<Integer, BookCopy> implements B
 		crit.add(Restrictions.eq("books", book));
 		List<BookCopy> bcList = (List<BookCopy>) crit.list();
 		for (BookCopy bookCopy : bcList) {
-			System.out.println(bookCopy.getId());
+			Hibernate.initialize(bookCopy.getBooks());
 		}
 		return bcList;
 	}	
 	
 	@Override
-	public void deleteBookCopy(BookCopy entity) {
+	public void remove(BookCopy entity) {
 		sessionFactory.getCurrentSession().delete(entity);
 	}
 }

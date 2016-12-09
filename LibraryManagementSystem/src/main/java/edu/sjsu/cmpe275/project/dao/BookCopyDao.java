@@ -7,10 +7,9 @@ import edu.sjsu.cmpe275.project.model.BookCopy;
 
 /**
  * @author Onkar Ganjewar
- * 
  */
 public interface BookCopyDao {
 	void save(BookCopy bookCopy);
 	List<BookCopy> findByBook (Book book);
-	void deleteBookCopy(BookCopy bookCopy);
+	void remove(BookCopy bookCopy);
 }

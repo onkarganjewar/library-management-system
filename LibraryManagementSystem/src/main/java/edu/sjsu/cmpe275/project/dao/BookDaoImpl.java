@@ -43,9 +43,6 @@ public class BookDaoImpl extends AbstractDao<Integer, Book> implements BookDao {
 		Book book1 = new Book();
 		if (bookList!=null && bookList.size()>0) {
 			book1 = bookList.get(0);
-			for (Book book : bookList) {
-				System.out.println(book);
-			}
 		}
 		return bookList;
 	}

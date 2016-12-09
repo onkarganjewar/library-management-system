@@ -36,7 +36,7 @@ import edu.sjsu.cmpe275.project.security.CustomUserDetailsService;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = HibernateConfigTest.class)
 @WebAppConfiguration
-public class AppControllerTest {
+public class LoginControllerTest {
 
 	static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 

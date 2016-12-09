@@ -6,7 +6,6 @@ import edu.sjsu.cmpe275.project.model.Book;
 
 /**
  * @author Onkar Ganjewar
- *
  */
 public interface BookService {
 

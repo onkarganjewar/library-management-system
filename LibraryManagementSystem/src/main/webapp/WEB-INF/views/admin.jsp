@@ -25,7 +25,7 @@ $(document).ready(function() {
 		console.log("button clicked");
 		var bookId = $('#txtSearch').val();
 		console.log(bookId);
-		var url = "http://localhost:8080/Cmpe275-Library-Management-System/search-book-"+bookId;
+		var url = "http://localhost:8080/Cmpe275-Library-Management-System/librarian/search-book-"+bookId;
 				window.location.replace(url);
 	});
 		
@@ -33,7 +33,7 @@ $(document).ready(function() {
 			console.log("button clicked");
 			var isbn = $('#txtISBN').val();
 			console.log(isbn);
-			var url = "http://localhost:8080/Cmpe275-Library-Management-System/bookInfo-"+isbn;
+			var url = "http://localhost:8080/Cmpe275-Library-Management-System/librarian/bookInfo-"+isbn;
 					window.location.replace(url);
 		});
 });
@@ -43,7 +43,7 @@ $(document).ready(function() {
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Admin page</title>
+	<title>Library Management System - Librarian</title>
 	<link href="<c:url value='/static/css/bootstrap.css' />" rel="stylesheet"></link>
     <link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
 </head>
@@ -92,8 +92,8 @@ $(document).ready(function() {
 						<td>${book.author}</td>
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
-							<td><a href="<c:url value='/edit-book-${book.id}'/>" class="btn btn-success custom-width">Edit</a></td>
-							<td><a href="<c:url value='/delete-book-${book.id}'/>" class="btn btn-danger custom-width">Delete</a></td>
+							<td><a href="<c:url value='/librarian/edit-book-${book.id}'/>" class="btn btn-success custom-width">Edit</a></td>
+							<td><a href="<c:url value='/librarian/delete-book-${book.id}'/>" class="btn btn-danger custom-width">Delete</a></td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -101,8 +101,7 @@ $(document).ready(function() {
 	</div>
 	<sec:authorize access="hasRole('ADMIN')">
 		<div class="well">
-			<a href="<c:url value='/newBook' />" class="btn btn-primary" >Add New Book</a>
-				
+			<a href="<c:url value='/librarian/new-book' />" class="btn btn-primary" >Add New Book</a>
 		</div>
 		<div class="row well" style="margin:0px 0px 10px 0px;">
   			<div class="col-lg-6">

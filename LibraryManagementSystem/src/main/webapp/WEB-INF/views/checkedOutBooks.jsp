@@ -52,7 +52,7 @@ $(document).ready(function() {
 						<td>${book.author}</td>
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
-						<td><a href="<c:url value='/return-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Return</a></td>
+						<td><a href="<c:url value='/patron/return-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Return</a></td>
 						
 					</tr>
 				</c:forEach>
@@ -61,7 +61,7 @@ $(document).ready(function() {
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/home' />" class="btn btn-primary" >Back to Home</a>
+			<a href="<c:url value='/patron/home' />" class="btn btn-primary" >Back to Home</a>
 		</div>
 	</sec:authorize>
 </body>
