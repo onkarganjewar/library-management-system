@@ -122,8 +122,8 @@ public class PatronController {
 	 * @param id Id of the book to be checked out
 	 * @param userid Id of the user that wants the book
 	 * @return Success, if the book is checked out successfully
-	 * 		  <p> Failure, if there's any error in issuing of the book </p>
-	 * 			<p>	Duplicate, if the book is already checked out </p>
+	 * <br> Failure, if there's any error in issuing of the book </br>
+	 * Duplicate, if the book is already checked out 
 	 */
 	@RequestMapping(value = "/confirm-checkout-book-{id}", method = RequestMethod.GET)
 	public @ResponseBody String checkoutBook (@PathVariable("id") String id, @RequestParam("name") String userid) {

@@ -1,16 +1,22 @@
-/**
- * 
- */
 package edu.sjsu.cmpe275.project.controller;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
+import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -228,7 +234,110 @@ public class LibrarianController {
 		return "admin";
 	}
 
+	/**
+	 * Renders the book registration page and populates the fields using ISBN
+	 * @param isbn ISBN to search the book from
+	 * @param model ModelMap to bind the book object attributes
+	 * @return newBook.jsp
+	 * @throws IOException
+	 * @throws MalformedURLException
+	 */
+	@RequestMapping(value = "/bookInfo-{isbn}", method = RequestMethod.GET)
+	public String renderBookByISBN(@PathVariable String isbn, ModelMap model) throws MalformedURLException, IOException {
+		// String isbn = "0201633612";
+		// @RequestParam("isbn") String isbn
+		URL url;
+		url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
 
+		// read from the URL
+		Scanner scan = new Scanner(url.openStream());
+		String str = new String();
+		while (scan.hasNext())
+			str += scan.nextLine();
+		scan.close();
+
+		// build a JSON object
+		JSONObject obj = new JSONObject(str);
+
+		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
+		System.out.println("Title = " + title);
+		String titleString = title.toString();
+
+		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
+		System.out.println("Publisher = " + publisher);
+		String publisherString = publisher.toString();
+
+		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
+				.get("publishedDate");
+		System.out.println("Date published = " + publishDate);
+		String publishedString = publishDate.toString();
+
+		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
+		int limit = arr.length();
+		List<String> authorsList = new ArrayList<String>();
+
+		for (int i = 0; i < limit; i++) {
+			Object val = arr.get(i);
+			// System.out.println(val);
+			authorsList.add(val.toString());
+		}
+		String authorString = "";
+
+		for (String string : authorsList) {
+			System.out.println("Authors name = " + string);
+			authorString += string + ", ";
+		}
+
+		System.out.println(authorString);
+
+		Book book = new Book();
+		book.setPublisher(publisherString);
+		book.setPublicationYear(publishedString);
+		book.setTitle(titleString);
+		book.setAuthor(authorString);
+		model.addAttribute("book", book);
+		return "newBook";
+	}
+
+	/**
+	 * Register a book by the ISBN values
+	 * @param book Book entity to be registered
+	 * @param copy No of copies to register
+	 * @return redirects to the admin home page
+	 */
+	@RequestMapping(value = { "/bookInfo-{isbn}" }, method = RequestMethod.POST)
+	public String saveBookByISBN(Book book, BindingResult result, @ModelAttribute("copies") String copy) {
+
+		boolean NaN = false;
+		int copies = 0;
+		// Check the input no of copies
+		try {
+			copies = Integer.parseInt(copy);
+		} catch (NumberFormatException e) {
+			// If not a valid number or null string, then create only one copy
+			// by default
+			NaN = true;
+		}
+		Integer returnBookId = bookService.saveBook(book);
+		Book returnBook = bookService.findById(Integer.toString(returnBookId));
+
+		if (returnBookId < 0) {
+			return "Error";
+		}
+		if (!NaN) {
+			// If a valid number then create the specified number of copies
+			for (int i = 0; i < copies; i++) {
+				BookCopy bookCopy = new BookCopy();
+				bookCopy.setBooks(returnBook);
+				bookCopyService.saveCopy(bookCopy);
+			}
+		} else {
+			BookCopy bookCopy = new BookCopy();
+			bookCopy.setBooks(returnBook);
+			bookCopyService.saveCopy(bookCopy);
+		}
+		return "redirect:/librarian/home";
+	}
 	
 	/**
 	 * Get the UserName of the logged-in user.

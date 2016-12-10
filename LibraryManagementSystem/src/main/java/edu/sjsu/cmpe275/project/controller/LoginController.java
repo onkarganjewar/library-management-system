@@ -277,11 +277,11 @@ public class LoginController {
 //		return "users";
 //	}
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/badUser.html", method = RequestMethod.GET)
 	public String demoPage() {
 		// model.addAttribute("user", getPrincipal());
 		System.out.println("ASDSDA");
-		return "login";
+		return "static/badUser.html";
 	}
 
 	@RequestMapping(value = { "/signup" }, method = RequestMethod.GET)
@@ -648,97 +648,97 @@ public class LoginController {
 		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return authenticationTrustResolver.isAnonymous(authentication);
 	}
-
-	@RequestMapping(value = "/bookInfo-{isbn}", method = RequestMethod.GET)
-	public String getBookInfo(@PathVariable String isbn, ModelMap model) throws Exception {
-		// String isbn = "0201633612";
-		// @RequestParam("isbn") String isbn
-		URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
-
-		// read from the URL
-		Scanner scan = new Scanner(url.openStream());
-		String str = new String();
-		while (scan.hasNext())
-			str += scan.nextLine();
-		scan.close();
-
-		// build a JSON object
-		JSONObject obj = new JSONObject(str);
-
-		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
-		System.out.println("Title = " + title);
-		String titleString = title.toString();
-
-		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
-		System.out.println("Publisher = " + publisher);
-		String publisherString = publisher.toString();
-
-		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
-				.get("publishedDate");
-		System.out.println("Date published = " + publishDate);
-		String publishedString = publishDate.toString();
-
-		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
-		int limit = arr.length();
-		List<String> authorsList = new ArrayList<String>();
-
-		for (int i = 0; i < limit; i++) {
-			Object val = arr.get(i);
-			// System.out.println(val);
-			authorsList.add(val.toString());
-		}
-		String authorString = "";
-
-		for (String string : authorsList) {
-			System.out.println("Authors name = " + string);
-			authorString += string + ", ";
-		}
-
-		System.out.println(authorString);
-
-		Book book = new Book();
-		book.setPublisher(publisherString);
-		book.setPublicationYear(publishedString);
-		book.setTitle(titleString);
-		book.setAuthor(authorString);
-		model.addAttribute("book", book);
-		return "newBook";
-	}
-
-	@RequestMapping(value = { "/bookInfo-{isbn}" }, method = RequestMethod.POST)
-	public String newBookByISBN_POST(Book book, BindingResult result, ModelMap model, final HttpServletRequest request,
-			@ModelAttribute("copies") String copy) {
-
-		boolean NaN = false;
-		int copies = 0;
-		// Check the input no of copies
-		try {
-			copies = Integer.parseInt(copy);
-		} catch (NumberFormatException e) {
-			// If not a valid number or null string, then create only one copy
-			// by default
-			NaN = true;
-		}
-		Integer returnBookId = bookService.saveBook(book);
-		Book returnBook = bookService.findById(Integer.toString(returnBookId));
-
-		if (returnBookId < 0) {
-			return "Error";
-		}
-		if (!NaN) {
-			// If a valid number then create the specified number of copies
-			for (int i = 0; i < copies; i++) {
-				BookCopy bookCopy = new BookCopy();
-				bookCopy.setBooks(returnBook);
-				bookCopyDao.save(bookCopy);
-			}
-		} else {
-			BookCopy bookCopy = new BookCopy();
-			bookCopy.setBooks(returnBook);
-			bookCopyDao.save(bookCopy);
-		}
-		return "redirect:/admin";
-	}
+//
+//	@RequestMapping(value = "/bookInfo-{isbn}", method = RequestMethod.GET)
+//	public String getBookInfo(@PathVariable String isbn, ModelMap model) throws Exception {
+//		// String isbn = "0201633612";
+//		// @RequestParam("isbn") String isbn
+//		URL url = new URL("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
+//
+//		// read from the URL
+//		Scanner scan = new Scanner(url.openStream());
+//		String str = new String();
+//		while (scan.hasNext())
+//			str += scan.nextLine();
+//		scan.close();
+//
+//		// build a JSON object
+//		JSONObject obj = new JSONObject(str);
+//
+//		Object title = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("title");
+//		System.out.println("Title = " + title);
+//		String titleString = title.toString();
+//
+//		Object publisher = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").get("publisher");
+//		System.out.println("Publisher = " + publisher);
+//		String publisherString = publisher.toString();
+//
+//		Object publishDate = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo")
+//				.get("publishedDate");
+//		System.out.println("Date published = " + publishDate);
+//		String publishedString = publishDate.toString();
+//
+//		JSONArray arr = obj.getJSONArray("items").getJSONObject(0).getJSONObject("volumeInfo").getJSONArray("authors");
+//		int limit = arr.length();
+//		List<String> authorsList = new ArrayList<String>();
+//
+//		for (int i = 0; i < limit; i++) {
+//			Object val = arr.get(i);
+//			// System.out.println(val);
+//			authorsList.add(val.toString());
+//		}
+//		String authorString = "";
+//
+//		for (String string : authorsList) {
+//			System.out.println("Authors name = " + string);
+//			authorString += string + ", ";
+//		}
+//
+//		System.out.println(authorString);
+//
+//		Book book = new Book();
+//		book.setPublisher(publisherString);
+//		book.setPublicationYear(publishedString);
+//		book.setTitle(titleString);
+//		book.setAuthor(authorString);
+//		model.addAttribute("book", book);
+//		return "newBook";
+//	}
+//
+//	@RequestMapping(value = { "/bookInfo-{isbn}" }, method = RequestMethod.POST)
+//	public String newBookByISBN_POST(Book book, BindingResult result, ModelMap model, final HttpServletRequest request,
+//			@ModelAttribute("copies") String copy) {
+//
+//		boolean NaN = false;
+//		int copies = 0;
+//		// Check the input no of copies
+//		try {
+//			copies = Integer.parseInt(copy);
+//		} catch (NumberFormatException e) {
+//			// If not a valid number or null string, then create only one copy
+//			// by default
+//			NaN = true;
+//		}
+//		Integer returnBookId = bookService.saveBook(book);
+//		Book returnBook = bookService.findById(Integer.toString(returnBookId));
+//
+//		if (returnBookId < 0) {
+//			return "Error";
+//		}
+//		if (!NaN) {
+//			// If a valid number then create the specified number of copies
+//			for (int i = 0; i < copies; i++) {
+//				BookCopy bookCopy = new BookCopy();
+//				bookCopy.setBooks(returnBook);
+//				bookCopyDao.save(bookCopy);
+//			}
+//		} else {
+//			BookCopy bookCopy = new BookCopy();
+//			bookCopy.setBooks(returnBook);
+//			bookCopyDao.save(bookCopy);
+//		}
+//		return "redirect:/admin";
+//	}
 
 //	@RequestMapping(value = "/search-book-{txtSearch:.+}", method = RequestMethod.GET)
 //	public String searchBook(@PathVariable String txtSearch, ModelMap model) {
