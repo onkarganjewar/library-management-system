@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +25,7 @@ import edu.sjsu.cmpe275.project.dao.CheckoutDao;
 import edu.sjsu.cmpe275.project.dao.MyCalendarDao;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
+import edu.sjsu.cmpe275.project.model.BookListWrapper;
 import edu.sjsu.cmpe275.project.model.Checkout;
 import edu.sjsu.cmpe275.project.model.MyCalendar;
 import edu.sjsu.cmpe275.project.model.User;
@@ -75,6 +78,13 @@ public class PatronController {
 		return "users";
 	}
 	
+	@RequestMapping(value = "/FOO", method = RequestMethod.POST)
+    public String postFooList(@ModelAttribute("bookListWrapper")BookListWrapper fooListWrapper, Model model) {
+		// TODO: Handle multiple checkout here
+		System.out.println(fooListWrapper);
+		return null;
+    }
+	
 
 	/**
 	 * Renders the retrieved results for the searched book by the title
@@ -89,9 +99,11 @@ public class PatronController {
 		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("books", books);
-		model.addAttribute("useremail", getPrincipal());
-		return "users";
-	}
+		BookListWrapper bookListWrapper = new BookListWrapper();
+		bookListWrapper.setBooksList(books);
+		model.addAttribute("bookListWrapper", bookListWrapper);
+		return "testResults";
+	}	
 	
 	/**
 	 * Renders the book checkout confirmation form
