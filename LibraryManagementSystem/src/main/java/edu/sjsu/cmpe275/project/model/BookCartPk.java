@@ -11,20 +11,20 @@ import javax.persistence.GenerationType;
 public class BookCartPk implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+//	private Integer id;
 
 	private Integer userId;
 	
 	private Integer bookId;
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
+//	public Integer getId() {
+//		return id;
+//	}
+//
+//	public void setId(Integer id) {
+//		this.id = id;
+//	}
 
 	public long getUserId() {
 		return userId;
@@ -56,11 +56,11 @@ public class BookCartPk implements Serializable {
                 return false;
         } else if (!userId.equals(other.userId))
             return false;
-        if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
+//        if (id == null) {
+//			if (other.id != null)
+//				return false;
+//		} else if (!id.equals(other.id))
+//			return false;
         if (bookId == null) {
             if (other.bookId != null)
                 return false;
@@ -75,7 +75,7 @@ public class BookCartPk implements Serializable {
 		int result = 1;
 		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
 		result = prime * result + ((bookId == null) ? 0 : bookId.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+//		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 }

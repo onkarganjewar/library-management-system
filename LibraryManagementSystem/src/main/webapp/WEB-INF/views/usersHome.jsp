@@ -9,7 +9,6 @@ $(document).ready(function() {
 		console.log("button clicked");
 		var bookId = $('#txtSearch').val();
 		var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/search-book-"+bookId;
-		document.getElementById("divResult").style.visibility='visible';
 		window.location.replace(url);
 	});
 });
@@ -36,6 +35,8 @@ $(document).ready(function() {
     		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name">
 				<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;" />  
 				<input type="hidden" name ="useremail" id="useremail" value="${useremail }">	
+				<input type="hidden" name ="userid" id="userid" value="${userid }">	
+				
 			</div>
 		</div>
 		<div id="divResult">
@@ -60,7 +61,7 @@ $(document).ready(function() {
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
 						<sec:authorize access="hasRole('USER')">
-							<td><a href="<c:url value='/patron/checkout-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Checkout</a></td>
+							<td><a href="<c:url value='/patron/checkout-book-${book.id}?name=${userid}'/>" class="btn btn-success custom-width">Checkout</a></td>
 						</sec:authorize>
 					</tr>
 				</c:forEach>
@@ -68,6 +69,11 @@ $(document).ready(function() {
 		</table>
 	</div>
 	</div>
+	<sec:authorize access="hasRole('USER')">
+		<div class="well">
+			<a href="<c:url value='/patron/viewCart?name=${userid}' />" class="btn btn-primary" >View Cart</a>
+		</div>
+	</sec:authorize>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
 			<a href="<c:url value='/patron/viewCheckedOutBooks?name=${useremail}' />" class="btn btn-primary" >View Checked Out Books</a>

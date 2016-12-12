@@ -24,8 +24,9 @@ public class BookCart implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	private Integer id;
+//	@Id
+//	@Column(name = "cart_id", insertable = false, updatable = false)
+//	private Integer id;
 
 	@Id
 	@Column(name = "user_id", insertable = false, updatable = false)
@@ -45,13 +46,13 @@ public class BookCart implements Serializable {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
+//	public Integer getId() {
+//		return id;
+//	}
+//
+//	public void setId(Integer id) {
+//		this.id = id;
+//	}
 
 	public Integer getUserId() {
 		return userId;
@@ -104,11 +105,11 @@ public class BookCart implements Serializable {
 				return false;
 		} else if (!book.equals(other.bookId))
 			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
+//		if (id == null) {
+//			if (other.id != null)
+//				return false;
+//		} else if (!id.equals(other.id))
+//			return false;
 		return true;
 	}
 
@@ -118,13 +119,15 @@ public class BookCart implements Serializable {
 		int result = 1;
 		result = prime * result + ((book == null) ? 0 : book.hashCode());
 		result = prime * result + ((user == null) ? 0 : user.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+//		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "BookCart [Id = " + id + "Book Id=" + bookId + ", User Id=" + userId + "]";
+//		return "BookCart [Id = " + id + "Book Id=" + bookId + ", User Id=" + userId + "]";
+
+		return "BookCart [Book Id=" + bookId + ", User Id=" + userId + "]";
 	}
 
 }

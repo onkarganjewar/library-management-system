@@ -15,7 +15,7 @@
 	href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" />
 </head>
 
-<body>
+<body><div class="well"><h2><center> Library Management System- Group 07</center></h2></div>
 	<div id="mainWrapper">
 		<div class="login-container">
 			<div class="login-card">
