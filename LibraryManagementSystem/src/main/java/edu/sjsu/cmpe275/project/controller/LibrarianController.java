@@ -108,7 +108,7 @@ public class LibrarianController {
 	 * @return
 	 */
 	@RequestMapping(value = { "/new-book" }, method = RequestMethod.POST)
-	public String registerNewBook(Book book, @ModelAttribute("copies") String copy) {
+	public String registerNewBook(Book book,BindingResult result, ModelMap model, @ModelAttribute("copies") String copy) {
 
 		boolean NaN = false;
 		int copies = 0;
@@ -138,7 +138,7 @@ public class LibrarianController {
 			bookCopy.setBooks(returnBook);
 			bookCopyService.saveCopy(bookCopy);
 		}
-		return "redirect:/admin";
+		return "redirect:/librarian/home";
 	}
 
 	/**
