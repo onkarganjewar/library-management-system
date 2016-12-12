@@ -48,6 +48,10 @@ public class Book implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
 	private List<Checkout> checkoutCopies;
 
+//	@Column
+//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
+//	private List<BookCart> bookCartItems;
+
 	
 	@Column
 	private String availability;
@@ -154,6 +158,14 @@ public class Book implements Serializable {
 	public void setCheckoutCopies(List<Checkout> checkoutCopies) {
 		this.checkoutCopies = checkoutCopies;
 	}
+
+//	public List<BookCart> getBookCartItems() {
+//		return bookCartItems;
+//	}
+//
+//	public void setBookCartItems(List<BookCart> bookCartItems) {
+//		this.bookCartItems = bookCartItems;
+//	}
 
 	@Override
 	public boolean equals(final Object obj) {
