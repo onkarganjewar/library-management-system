@@ -49,8 +49,14 @@ public class Book implements Serializable {
 	private List<Checkout> checkoutCopies;
 
 	@Column
+	@Cascade({ CascadeType.ALL })
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
 	private List<BookCart> bookCartItems;
+
+	@Column
+	@Cascade({ CascadeType.ALL })
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
+	private List<WaitList> waitListPersons;
 
 	
 	@Column
@@ -165,6 +171,14 @@ public class Book implements Serializable {
 
 	public void setBookCartItems(List<BookCart> bookCartItems) {
 		this.bookCartItems = bookCartItems;
+	}
+
+	public List<WaitList> getWaitListPersons() {
+		return waitListPersons;
+	}
+
+	public void setWaitListPersons(List<WaitList> waitListPersons) {
+		this.waitListPersons = waitListPersons;
 	}
 
 	@Override
