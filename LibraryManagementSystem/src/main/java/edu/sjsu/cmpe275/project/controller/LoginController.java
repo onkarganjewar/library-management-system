@@ -115,7 +115,7 @@ public class LoginController {
 
 	@Autowired
 	private BookCopyDao bookCopyDao;
-
+//
 //	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 //	public String adminPage(ModelMap model) {
 //		List<Book> books = bookService.findAllBooks();
