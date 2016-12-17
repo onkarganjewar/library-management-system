@@ -67,6 +67,7 @@ public class LibrarianController {
 
 	
 
+		
 	/**
 	 * Renders the book registration page for the librarian.
 	 * @param model ModelMap holding the book data.

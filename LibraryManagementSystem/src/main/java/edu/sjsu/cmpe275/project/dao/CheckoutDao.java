@@ -14,5 +14,5 @@ public interface CheckoutDao {
 	List<Checkout> findByBookId (int bookId);
 	List<Checkout> findByUserId (int userId);
 	
-	
+	void modify(Checkout entity);
 }

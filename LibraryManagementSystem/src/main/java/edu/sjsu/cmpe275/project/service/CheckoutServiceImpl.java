@@ -44,5 +44,12 @@ public class CheckoutServiceImpl implements CheckoutService{
 	public List<Checkout> findByUserId(int userId) {
 		return checkoutDao.findByUserId(userId);
 	}
+
+	@Override
+	public void updateCheckout(Checkout entity) {
+		// TODO Auto-generated method stub
+		checkoutDao.modify(entity);
+		
+	}
 	
 }

@@ -31,6 +31,15 @@ function addToCart(){
 					var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
 					window.location.replace(url);
 				} 
+				else if (data == "Unavailable") {
+					if(confirm('Book is unavailable at this time. Would like to be added to the waiting list for this book?')){
+						console.log("YES Selected");
+					}
+					else{
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
+						window.location.replace(url);
+					}
+				} 
 				else if (data == "Failure") {
 					alert("Cannot add the book. Something went wrong. Try again.");
 					var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
@@ -42,6 +51,15 @@ function addToCart(){
             }
 		});
 	}
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#btnSearch').click( function() {
+		var bookId = $('#txtSearch').val();
+		var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/search-book-"+bookId;
+		window.location.replace(url);
+	});
+});
 </script>
 
 <head>
@@ -104,6 +122,8 @@ function addToCart(){
 							<td>${book.publisher}</td>
 							<td><input type="hidden" id="bookId" name="bookId" value="${book.id}" /></td>
 					  		<td><button class="btn btn-success" id="btnId" onclick="addToCart()">Add To Cart</button>
+<%-- 					  		<td><a href="<c:url value='/patron/checkout-book-${book.id}?name=${useremail}'/>" class="btn btn-info custom-width">Checkout</a></td>
+ --%>					  		
 						</tr>
 					</c:forEach>
 			</tbody>

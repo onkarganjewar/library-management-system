@@ -32,8 +32,8 @@ $(document).ready(function() {
 	<div class="panel panel-default">
 		<div class="form-group row">
  			 <div class="col-xs-6">
-    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name">
-				<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;" />  
+    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" style="margin:0px 0px 0px 20px;">
+				<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 20px;" />  
 				<input type="hidden" name ="useremail" id="useremail" value="${useremail }">	
 				<input type="hidden" name ="userid" id="userid" value="${userid }">	
 				
@@ -76,7 +76,7 @@ $(document).ready(function() {
 	</sec:authorize>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/patron/viewCheckedOutBooks?name=${useremail}' />" class="btn btn-primary" >View Checked Out Books</a>
+			<a href="<c:url value='/patron/viewCheckedOutBooks?name=${userid}' />" class="btn btn-primary" >View Checked Out Books</a>
 		</div>
 	</sec:authorize>
 </body>

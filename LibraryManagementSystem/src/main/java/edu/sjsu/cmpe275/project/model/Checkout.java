@@ -37,6 +37,9 @@ public class Checkout implements Serializable {
     @Id
     @Column(name = "book_id", insertable = false, updatable = false)
     private Integer bookId;
+    
+    @Column(name = "times")
+    private Integer times;
 
 	@ManyToOne
 	@MapsId("bookId")
@@ -106,6 +109,14 @@ public class Checkout implements Serializable {
 		this.book = bookId;
 	}
 
+	public Integer getTimes() {
+		return times;
+	}
+
+	public void setTimes(Integer times) {
+		this.times = times;
+	} 
+	
 	public BookCopy getCopy() {
 		return copy;
 	}
