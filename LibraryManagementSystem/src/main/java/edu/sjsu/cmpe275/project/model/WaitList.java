@@ -41,10 +41,14 @@ public class WaitList implements Serializable {
     @Column(name = "book_id", insertable = false, updatable = false)
     private Integer bookId;
 
-    @Column(name = "wait_date")
+//    @Id
+    @Column(name = "wait_date", nullable = false)
     private Date dateAdded;
     
-	@Id
+    @Column(name = "date_assigned")
+    private Date dateAssigned;
+   
+    @Id
 	@ManyToOne
 	@MapsId("bookId")
 	@JoinColumn(name = "book_id", referencedColumnName = "id")
@@ -58,22 +62,29 @@ public class WaitList implements Serializable {
 
 	public WaitList() {
 	}
-	
+
+
 	/**
 	 * @param waitListId
 	 * @param userId
 	 * @param bookId
+	 * @param dateAdded
+	 * @param dateAssigned
 	 * @param book
 	 * @param user
 	 */
-	public WaitList(Integer waitListId, Integer userId, Integer bookId, Book book, User user) {
+	public WaitList(Integer waitListId, Integer userId, Integer bookId, Date dateAdded, Date dateAssigned, Book book,
+			User user) {
 		super();
 		this.waitListId = waitListId;
 		this.userId = userId;
 		this.bookId = bookId;
+		this.dateAdded = dateAdded;
+		this.dateAssigned = dateAssigned;
 		this.book = book;
 		this.user = user;
 	}
+
 
 	public Integer getWaitListId() {
 		return waitListId;
@@ -110,6 +121,14 @@ public class WaitList implements Serializable {
 	}
 
 
+	public Date getDateAssigned() {
+		return dateAssigned;
+	}
+
+	public void setDateAssigned(Date dateAssigned) {
+		this.dateAssigned = dateAssigned;
+	}
+
 	public Book getBook() {
 		return book;
 	}
@@ -128,7 +147,13 @@ public class WaitList implements Serializable {
 
 	@Override
 	public String toString() {
-		return "WaitList [id=" + waitListId + ", Book Id=" + bookId + ", User Id=" + userId + ", Date added =" + dateAdded
-				+ ", " + book + ", " + user + "]";
+		return "WaitList [waitListId =" + waitListId + ", userId =" + userId + ", bookId =" + bookId + ", dateAdded ="
+				+ dateAdded + ", dateAssigned =" + dateAssigned + ", book =" + book + ", user =" + user + "]";
 	}
+
+//	@Override
+//	public String toString() {
+//		return "WaitList [id=" + waitListId + ", Book Id=" + bookId + ", User Id=" + userId + ", Date added =" + dateAdded + ", Date assigned =" + dateAssigned 
+//				+ ", " + book + ", " + user + "]";
+//	}
 }

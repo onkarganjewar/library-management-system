@@ -50,7 +50,7 @@ import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.model.UserProfile;
 import edu.sjsu.cmpe275.project.model.VerificationToken;
 import edu.sjsu.cmpe275.project.notification.BookNotification;
-import edu.sjsu.cmpe275.project.notification.CustomMailSender;
+import edu.sjsu.cmpe275.project.util.CustomMailSender;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.CheckoutService;
 import edu.sjsu.cmpe275.project.service.NotificationService;

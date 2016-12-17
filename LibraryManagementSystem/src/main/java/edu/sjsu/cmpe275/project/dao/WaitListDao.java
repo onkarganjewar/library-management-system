@@ -16,4 +16,6 @@ public interface WaitListDao {
 	public void removeByWaitListId (Integer waitListId);
 	public List<WaitList> findByBookId (Integer bookId);
 	public List<WaitList> findByUserId (Integer userId);
+	public List<WaitList> findAllRecords ();
+
 }

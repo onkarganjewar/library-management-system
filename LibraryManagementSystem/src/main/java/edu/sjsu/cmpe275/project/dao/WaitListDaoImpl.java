@@ -75,4 +75,9 @@ public class WaitListDaoImpl extends AbstractDao<Serializable, WaitList> impleme
 		WaitList waitList = (WaitList) crit.uniqueResult();
 		delete(waitList);
 	}
+
+	@Override
+	public List<WaitList> findAllRecords() {
+		return sessionFactory.getCurrentSession().createCriteria(WaitList.class).addOrder(Order.asc("dateAdded")).list();
+	}
 }

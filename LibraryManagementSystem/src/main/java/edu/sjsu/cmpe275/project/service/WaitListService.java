@@ -18,4 +18,5 @@ public interface WaitListService {
 	public User getFirstInLineForBook (Integer bookId);
 	public void removeUserFromWaitList (Integer userId, Integer bookId);
 	public WaitList getRecordByWaitListId (Integer waitListId);
+	public List<WaitList> findAllRecords ();
 }

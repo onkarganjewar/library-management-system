@@ -73,4 +73,9 @@ public class WaitListServiceImpl implements WaitListService {
 	public WaitList getRecordByWaitListId(Integer waitListId) {
 		return waitListDao.findByWaitListId(waitListId);
 	}
+
+	@Override
+	public List<WaitList> findAllRecords() {
+		return waitListDao.findAllRecords();
+	}
 }
