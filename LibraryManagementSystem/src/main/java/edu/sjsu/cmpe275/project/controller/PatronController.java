@@ -7,8 +7,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -110,7 +108,6 @@ public class PatronController {
 		return "ConfirmCheckoutBooks";
     }
 	
-
 	/**
 	 * Renders the retrieved results for the searched book by the title
 	 * @param txtSearch Title of the book to be searched
@@ -131,9 +128,6 @@ public class PatronController {
 		return "userSearchResults";
 	}	
 
-	
-	
-	
 	/**
 	 * Renders the book checkout confirmation form
 	 * @param id Id of the book to be checked out
