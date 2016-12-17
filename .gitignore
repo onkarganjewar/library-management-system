@@ -31,3 +31,6 @@ spring-*/src/main/java/META-INF/MANIFEST.MF
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Git merge resolve conflict backup files
+*.orig
