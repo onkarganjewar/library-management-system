@@ -76,4 +76,9 @@ public class CheckoutDaoImpl extends AbstractDao<Serializable, Checkout> impleme
 		// TODO Auto-generated method stub
 		update(entity);
 	}
+
+	@Override
+	public List<Checkout> findAllCopies() {
+		return sessionFactory.getCurrentSession().createCriteria(Checkout.class).list();
+	}
 }

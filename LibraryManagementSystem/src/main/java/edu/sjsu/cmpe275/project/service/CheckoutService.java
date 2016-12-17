@@ -13,4 +13,5 @@ public interface CheckoutService {
 	List<Checkout> findByBookId (int bookId);
 	List<Checkout> findByUserId (int userId);
 	void updateCheckout(Checkout entity);
+	List<Checkout> findAllRecords();
 }
