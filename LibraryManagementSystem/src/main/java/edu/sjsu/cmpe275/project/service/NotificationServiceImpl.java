@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.sjsu.cmpe275.project.model.Checkout;
 import edu.sjsu.cmpe275.project.model.User;
+import edu.sjsu.cmpe275.project.model.WaitList;
 import edu.sjsu.cmpe275.project.util.CustomMailSender;
 
 /**
@@ -59,6 +60,15 @@ public class NotificationServiceImpl implements NotificationService {
 		try {
 //			mailSender.sendMail(checkout.getUser(),  null, "URK", 1, null);
 			mailSender.sendMail(checkout.getUser(), checkout, null, 4, dueWithin);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void sendBookAvailableMail(Checkout checkout, Integer dueWithin) {
+		try {
+			mailSender.sendMail(checkout.getUser(), checkout, null, 5, dueWithin);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

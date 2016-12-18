@@ -1,5 +1,7 @@
 package edu.sjsu.cmpe275.project.controller;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -7,8 +9,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.jsp.tagext.TryCatchFinally;
+
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.service.spi.ServiceException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,10 +32,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.sjsu.cmpe275.project.dao.CheckoutDao;
 import edu.sjsu.cmpe275.project.dao.MyCalendarDao;
+import edu.sjsu.cmpe275.project.dao.UserDaoImpl;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCart;
 import edu.sjsu.cmpe275.project.model.BookCopy;
 import edu.sjsu.cmpe275.project.model.BookListWrapper;
+import edu.sjsu.cmpe275.project.model.BooksHoldList;
 import edu.sjsu.cmpe275.project.model.Checkout;
 import edu.sjsu.cmpe275.project.model.MyCalendar;
 import edu.sjsu.cmpe275.project.model.User;
@@ -37,6 +46,7 @@ import edu.sjsu.cmpe275.project.service.BookCartService;
 import edu.sjsu.cmpe275.project.service.BookCopyService;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.CheckoutService;
+import edu.sjsu.cmpe275.project.service.HoldListService;
 import edu.sjsu.cmpe275.project.service.NotificationService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.service.WaitListService;
@@ -49,24 +59,22 @@ import edu.sjsu.cmpe275.project.service.WaitListService;
 @RequestMapping("/patron")
 public class PatronController {
 
+	static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+
 	@Autowired
 	private NotificationService notificationService;
 
 	@Autowired
-	CheckoutDao checkoutDao;
+	private MyCalendarDao myCalendarDao;
 
 	@Autowired
-	MyCalendarDao myCalendarDao;
+	private CheckoutService checkoutService;
 
 	@Autowired
-	CheckoutService checkoutService;
-
-
-	@Autowired
-	BookCartService cartService;
+	private BookCartService cartService;
 
 	@Autowired
-	WaitListService waitListService;
+	private WaitListService waitListService;
 
 	@Autowired
 	private BookService bookService;
@@ -77,9 +85,14 @@ public class PatronController {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private HoldListService holdListService;
+
 	/**
 	 * Renders the home page for the patron.
-	 * @param model ModelMap to hold the object data.
+	 * 
+	 * @param model
+	 *            ModelMap to hold the object data.
 	 * @return users.jsp
 	 */
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
@@ -91,32 +104,36 @@ public class PatronController {
 		model.addAttribute("userid", currentuser.getId());
 		return "usersHome";
 	}
-	
+
 	@RequestMapping(value = "/confirm-checkout", method = RequestMethod.POST)
-    public String postFooList(@ModelAttribute("bookListWrapper")BookListWrapper fooListWrapper,@RequestParam("name") String userid, Model model) {
-		
+	public String postFooList(@ModelAttribute("bookListWrapper") BookListWrapper fooListWrapper,
+			@RequestParam("name") String userid, Model model) {
+
 		List<Book> selectedBooks = new ArrayList<Book>();
 		List<Book> returnedIds = fooListWrapper.getBooksList();
 		for (Book book : returnedIds) {
 			if (book.getId() != null)
-			selectedBooks.add(bookService.findById(book.getId().toString()));
+				selectedBooks.add(bookService.findById(book.getId().toString()));
 		}
-		User user=userService.findById(Integer.parseInt(userid));
+		User user = userService.findById(Integer.parseInt(userid));
 		Date dueDate = DateUtils.addMonths(new Date(), 1);
 		BookListWrapper bookListWrapper = new BookListWrapper();
 		bookListWrapper.setBooksList(selectedBooks);
 		model.addAttribute("bookListWrapper", bookListWrapper);
 		model.addAttribute("due", dueDate);
-		model.addAttribute("userid",Integer.parseInt(userid));
+		model.addAttribute("userid", Integer.parseInt(userid));
 		model.addAttribute("user", user.getFirstName());
 		System.out.println(fooListWrapper);
 		return "ConfirmCheckoutBooks";
-    }
-	
+	}
+
 	/**
 	 * Renders the retrieved results for the searched book by the title
-	 * @param txtSearch Title of the book to be searched
-	 * @param model ModelMap to hold the book object data
+	 * 
+	 * @param txtSearch
+	 *            Title of the book to be searched
+	 * @param model
+	 *            ModelMap to hold the book object data
 	 * @return users.jsp
 	 */
 	@RequestMapping(value = "/search-book-{txtSearch}", method = RequestMethod.GET)
@@ -131,13 +148,17 @@ public class PatronController {
 		model.addAttribute("bookListWrapper", bookListWrapper);
 		model.addAttribute("userid", currentuser.getId());
 		return "userSearchResults";
-	}	
+	}
 
 	/**
 	 * Renders the book checkout confirmation form
-	 * @param id Id of the book to be checked out
-	 * @param username Name/Email of the user 
-	 * @param model ModelMap to hold the book/user object data
+	 * 
+	 * @param id
+	 *            Id of the book to be checked out
+	 * @param username
+	 *            Name/Email of the user
+	 * @param model
+	 *            ModelMap to hold the book/user object data
 	 * @return bookCheckoutWindow.jsp
 	 */
 	@RequestMapping(value = "/checkout-book-{id}", method = RequestMethod.GET)
@@ -156,17 +177,19 @@ public class PatronController {
 		return "bookCheckoutWindow";
 	}
 
-
 	/**
 	 * Checks out the particular book for the given user.
-	 * @param id Id of the book to be checked out
-	 * @param userid Id of the user that wants the book
-	 * @return Success, if the book is checked out successfully
-	 * <br> Failure, if there's any error in issuing of the book </br>
-	 * Duplicate, if the book is already checked out 
+	 * 
+	 * @param id
+	 *            Id of the book to be checked out
+	 * @param userid
+	 *            Id of the user that wants the book
+	 * @return Success, if the book is checked out successfully <br>
+	 *         Failure, if there's any error in issuing of the book </br>
+	 *         Duplicate, if the book is already checked out
 	 */
 	@RequestMapping(value = "/confirm-checkout-book-{id}", method = RequestMethod.GET)
-	public @ResponseBody String checkoutBook (@PathVariable("id") String id, @RequestParam("name") String userid) {
+	public @ResponseBody String checkoutBook(@PathVariable("id") String id, @RequestParam("name") String userid) {
 		int userId = Integer.parseInt(userid);
 		int bookId = Integer.parseInt(id);
 
@@ -283,9 +306,9 @@ public class PatronController {
 		checkoutCopies.add(checkout);
 		book.setCheckoutCopies(checkoutCopies);
 		user.setCheckoutCopies(checkoutCopies);
-		
+
 		try {
-			checkoutDao.insert(checkout);
+			checkoutService.addCheckout(checkout);
 		} catch (Exception e) {
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
 				return "Duplicate";
@@ -303,6 +326,7 @@ public class PatronController {
 
 	/**
 	 * Get the UserName of the logged-in user.
+	 * 
 	 * @return the UserName of the logged-in user
 	 */
 	private String getPrincipal() {
@@ -316,17 +340,21 @@ public class PatronController {
 		}
 		return userName;
 	}
-	
+
 	/**
 	 * Renders the checkout successful screen with the book details
-	 * @param id Id of the book checked out
-	 * @param userid Id of the user
-	 * @param model ModelMap to hold the book/user attributes
+	 * 
+	 * @param id
+	 *            Id of the book checked out
+	 * @param userid
+	 *            Id of the user
+	 * @param model
+	 *            ModelMap to hold the book/user attributes
 	 * @return confirmedCheckoutScreen.jsp
 	 */
 	@RequestMapping(value = "/confirmedCheckout", method = RequestMethod.GET)
 	public String renderCheckoutComplete(@RequestParam("bookId") String id, @RequestParam("userId") String userid,
-			ModelMap model) {	
+			ModelMap model) {
 		System.out.println("BOOK" + id + "USER" + userid);
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
@@ -342,12 +370,13 @@ public class PatronController {
 		return "confirmedCheckoutScreen";
 	}
 
-	
-
 	/**
 	 * Renders the list of books that are checked out for a given user
-	 * @param user Email of the user  
-	 * @param model ModelMap to hold the object values
+	 * 
+	 * @param user
+	 *            Email of the user
+	 * @param model
+	 *            ModelMap to hold the object values
 	 * @return checkedOutBooks.jsp
 	 */
 	@RequestMapping(value = "/viewCheckedOutBooks", method = RequestMethod.GET)
@@ -365,18 +394,21 @@ public class PatronController {
 		return "checkedOutBooks";
 	}
 
-	
-
 	/**
 	 * Returns the book with the given id
-	 * @param id Id of the book to be returned 
-	 * @param username Email of the user
-	 * @param model ModelMap to bind the attribute values
+	 * 
+	 * @param id
+	 *            Id of the book to be returned
+	 * @param username
+	 *            Email of the user
+	 * @param model
+	 *            ModelMap to bind the attribute values
 	 * @return checkedOutBooks.jsp
 	 */
 	@RequestMapping(value = "/return-book-{id}", method = RequestMethod.GET)
 	public String returnBook(@PathVariable("id") String id, @RequestParam("name") String username, ModelMap model) {
 		Book book = new Book();
+		boolean waitListExists = true;
 		book = (Book) bookService.findById(id);
 		User user = userService.findByEmail(username);
 		Checkout returnCopy = new Checkout();
@@ -389,11 +421,36 @@ public class PatronController {
 		}
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
-		
-		WaitList firstInLine = waitListService.getFirstInLineForBook(book.getId());
-		
-		firstInLine.setDateAssigned(new Date());
-		waitListService.updateRecord(firstInLine);
+		WaitList firstInLine = null;
+
+		try {
+			firstInLine = waitListService.getFirstInLineForBook(book.getId());
+		} catch (ServiceException e) {
+			logger.debug(e.getMessage());
+			waitListExists = false;
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage());
+		}
+
+		if (waitListExists) {
+			firstInLine.setDateAssigned(new Date());
+			// waitListService.updateRecord(firstInLine);
+			BooksHoldList holdList = new BooksHoldList();
+			holdList.setBook(firstInLine.getBook());
+			holdList.setBookCopyId(returnCopy.getCopy().getId());
+			holdList.setBookId(firstInLine.getBookId());
+			holdList.setCopy(returnCopy.getCopy());
+			holdList.setDateAssigned(firstInLine.getDateAssigned());
+			holdList.setUser(firstInLine.getUser());
+			holdList.setUserId(firstInLine.getUserId());
+			holdListService.addRecord(holdList);
+			Checkout waitCheck = new Checkout();
+			waitCheck.setBook(firstInLine.getBook());
+//			waitCheck.setBookId(firstInLine.getBookId());
+			waitCheck.setUser(firstInLine.getUser());
+			notificationService.sendBookAvailableMail(waitCheck, 3);
+		}
+
 		book.setAvailability("Available");
 		bookService.updateBook(book);
 		notificationService.sendReturnMail(returnCopy.getUser(), returnCopy);
@@ -406,37 +463,44 @@ public class PatronController {
 		for (Checkout checkout : checkedOutBooks) {
 			books.add(checkout.getBook());
 		}
-		
-		model.addAttribute("useremail",getPrincipal());
+
+		model.addAttribute("useremail", getPrincipal());
 		model.addAttribute("books", books);
 		return "checkedOutBooks";
 	}
 
-	
 	@RequestMapping(value = "/addToCart-{id}", method = RequestMethod.GET)
-	public @ResponseBody String addToCart (@PathVariable("id") String id, @RequestParam("name") String userid,ModelMap model) {
+	public @ResponseBody String addToCart(@PathVariable("id") String id, @RequestParam("name") String userid,
+			ModelMap model) {
 		int userId = Integer.parseInt(userid);
 		int bookId = Integer.parseInt(id);
 		List<Checkout> checkedOutCopies = checkoutService.findByBookId(bookId);
 		List<BookCopy> bookCopies = bookCopyService.findAllByBook(bookService.findById(id));
-		
+//		List<User> usersList =	holdListService.findAllUsersForBook(bookId);
+		List<BookCopy> holdCopies = holdListService.findAllBookCopies(bookId);
+		BooksHoldList firstHold = holdListService.getFirstInLineForBook(bookId);
 		// Check whether the user holds the different copy of the given book
 		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
 		if (checkoutUsersList != null && !checkoutUsersList.isEmpty()) {
 			for (Checkout checkout : checkoutUsersList) {
-				if(checkout.getBookId() == bookId) {
+				if (checkout.getBookId() == bookId) {
 					return "AlreadyCheckedOut";
 				}
 			}
 		}
-		if (bookCopies.size() == checkedOutCopies.size())
+		
+		int outCopies = (checkedOutCopies.size() + holdCopies.size());
+		int allCopies = bookCopies.size();
+		if (allCopies == checkedOutCopies.size() )
 			return "Unavailable";
 		
-		
+		if (allCopies == outCopies)
+			return "OnHold";
+
 		BookCart entity = new BookCart();
 		entity.setBookId(bookId);
 		entity.setUserId(userId);
-		
+
 		try {
 			cartService.addToCart(entity);
 		} catch (Exception e) {
@@ -447,7 +511,7 @@ public class PatronController {
 		}
 		return "Success";
 	}
-	
+
 	@RequestMapping(value = "/viewCart", method = RequestMethod.GET)
 	public String renderCart(@RequestParam("name") String userid, ModelMap model) {
 
@@ -467,43 +531,43 @@ public class PatronController {
 	}
 
 	@RequestMapping(value = "/cart-search-book-{txtSearch}", method = RequestMethod.GET)
-	public String renderSearchedBooks(@PathVariable String txtSearch,@RequestParam("name") String id, ModelMap model) {
+	public String renderSearchedBooks(@PathVariable String txtSearch, @RequestParam("name") String id, ModelMap model) {
 		List<Book> books = (List<Book>) bookService.findByTitle(txtSearch);
 		User currentuser = userService.findById(Integer.parseInt(id));
-		//User currentuser = userService.findByEmail(email_user);
+		// User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("books", books);
-		List<BookCart> cartItems  = cartService.findByUserId(Integer.parseInt(id));
+		List<BookCart> cartItems = cartService.findByUserId(Integer.parseInt(id));
 		List<Book> cartBooks = new ArrayList<Book>();
 		for (BookCart bookCart : cartItems) {
 			cartBooks.add(bookCart.getBook());
 		}
 		books.removeAll(cartBooks);
-		
+
 		BookListWrapper bookListWrapper = new BookListWrapper();
 		bookListWrapper.setBooksList(books);
 		model.addAttribute("bookListWrapper", bookListWrapper);
 		model.addAttribute("userid", currentuser.getId());
 		return "userSearchResults";
-	}	
-	
+	}
+
 	@RequestMapping(value = "/remove-from-cart-{id}", method = RequestMethod.GET)
-	public String removeBookFromCart(@PathVariable("id") String id, @RequestParam("name") String userid, ModelMap model) {
+	public String removeBookFromCart(@PathVariable("id") String id, @RequestParam("name") String userid,
+			ModelMap model) {
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
 		User user = userService.findById(Integer.parseInt(userid));
-		BookCart removeCopy=new BookCart();
-		List<BookCart> rmCopies=cartService.findByUserId(Integer.parseInt(userid));
+		BookCart removeCopy = new BookCart();
+		List<BookCart> rmCopies = cartService.findByUserId(Integer.parseInt(userid));
 		for (BookCart bookCart : rmCopies) {
-			if(bookCart.getUserId()==user.getId() && bookCart.getBookId()==book.getId()){
-				removeCopy=bookCart;
+			if (bookCart.getUserId() == user.getId() && bookCart.getBookId() == book.getId()) {
+				removeCopy = bookCart;
 				break;
 			}
 		}
-		
-		
+
 		System.out.println(removeCopy);
-		cartService.removeFromCart(Integer.parseInt(userid),Integer.parseInt(id));
+		cartService.removeFromCart(Integer.parseInt(userid), Integer.parseInt(id));
 		List<BookCart> cartItems = cartService.findByUserId(Integer.parseInt(userid));
 		List<Book> cartBooks = new ArrayList<Book>();
 		for (BookCart bookCart : cartItems) {
@@ -517,44 +581,46 @@ public class PatronController {
 		model.addAttribute("val1", "success");
 		model.addAttribute("userid", user.getId());
 		return "BookCart";
-		
+
 	}
-	
+
 	@RequestMapping(value = "/checkout", method = RequestMethod.POST)
-	public String checkoutBooks(@ModelAttribute("bookListWrapper")BookListWrapper fooListWrapper, BindingResult error, @RequestParam("name") String userId, ModelMap model) {
+	public String checkoutBooks(@ModelAttribute("bookListWrapper") BookListWrapper fooListWrapper, BindingResult error,
+			@RequestParam("name") String userId, ModelMap model) {
 		System.out.println(userId);
 		List<Book> selectedBooks = new ArrayList<Book>();
 		List<Book> returnedIds = fooListWrapper.getBooksList();
-		List<Integer> bookIdList = new ArrayList<Integer> ();
-		
+		List<Integer> bookIdList = new ArrayList<Integer>();
+
 		for (Book book : returnedIds) {
 			if (book.getId() != null)
-			bookIdList.add(book.getId());
+				bookIdList.add(book.getId());
 			selectedBooks.add(bookService.findById(book.getId().toString()));
 		}
-		User user=userService.findById(Integer.parseInt(userId));
+		User user = userService.findById(Integer.parseInt(userId));
 		String returnVal = "";
 		String returnTitle = "";
 		for (Integer i : bookIdList) {
-			if (returnVal.equals("Failure") ||returnVal.equals("BookCopyNotAvailable")|| returnVal.equals("Duplicate") || returnVal.equals("OverallCheckoutLimitReached") || returnVal.equals("DayCheckoutLimitReached")) {
-			Book returnBook = bookService.findById(i.toString());
-			returnTitle = returnBook.getTitle();
-			break;
+			if (returnVal.equals("Failure") || returnVal.equals("BookCopyNotAvailable") || returnVal.equals("Duplicate")
+					|| returnVal.equals("OverallCheckoutLimitReached") || returnVal.equals("DayCheckoutLimitReached")) {
+				Book returnBook = bookService.findById(i.toString());
+				returnTitle = returnBook.getTitle();
+				break;
 			}
-			returnVal = checkoutBook(Integer.parseInt(userId), i);			
+			returnVal = checkoutBook(Integer.parseInt(userId), i);
 		}
-		
-		model.addAttribute("val1",returnVal);
+
+		model.addAttribute("val1", returnVal);
 		model.addAttribute("bookTitle", returnTitle);
-		model.addAttribute("books",selectedBooks);
-		
+		model.addAttribute("books", selectedBooks);
+
 		Date dueDate = DateUtils.addMonths(new Date(), 1);
 		model.addAttribute("due", dueDate.toString());
-		
+
 		model.addAttribute("userid", user.getId());
-		
+
 		return "confirmedCheckout";
-		
+
 	}
 
 	private String checkoutBook(Integer userId, Integer bookId) {
@@ -572,7 +638,7 @@ public class PatronController {
 
 		if (allBookCopies.size() == 1)
 			lastCopy = true;
-		
+
 		// Check whether any copy of the given book is available for rent
 		if (checkoutBooksList != null && !checkoutBooksList.isEmpty()) {
 			for (Checkout checkout : checkoutBooksList) {
@@ -584,13 +650,13 @@ public class PatronController {
 				// available = false;
 				bookService.updateBook(book);
 				return "BookCopyNotAvailable";
-			} else if (allBookCopies.size()  == (checkoutBooksList.size() + 1)) {
+			} else if (allBookCopies.size() == (checkoutBooksList.size() + 1)) {
 				lastCopy = true;
 			}
-				// Get the list of book copies for the given checked-out book
-				for (Checkout checkout2 : checkoutBooksList) {
+			// Get the list of book copies for the given checked-out book
+			for (Checkout checkout2 : checkoutBooksList) {
 				checkoutBookCopiesList.add(checkout2.getCopy());
-				}
+			}
 		}
 
 		// Compare all the book copies
@@ -678,7 +744,7 @@ public class PatronController {
 		book.setCheckoutCopies(checkoutCopies);
 		user.setCheckoutCopies(checkoutCopies);
 		try {
-			checkoutDao.insert(checkout);
+			checkoutService.addCheckout(checkout);
 		} catch (Exception e) {
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
 				return "Duplicate";
@@ -696,8 +762,7 @@ public class PatronController {
 		userService.updateUser(user);
 		return "Success";
 	}
-	
-	
+
 	@RequestMapping(value = "/renew-book-{id}", method = RequestMethod.GET)
 	public String renewBook(@PathVariable("id") String id, @RequestParam("name") String username, ModelMap model) {
 		Book book = new Book();
@@ -712,22 +777,19 @@ public class PatronController {
 			}
 		}
 		System.out.println(renewCopy);
-		Integer freq=renewCopy.getTimes();
-		if(freq>=2)
-		{
+		Integer freq = renewCopy.getTimes();
+		if (freq >= 2) {
 			model.addAttribute("val2", "exceeded");
-		}
-		else
-		{
-			Date oldCheckoutDate=renewCopy.getCheckoutDate();
+		} else {
+			Date oldCheckoutDate = renewCopy.getCheckoutDate();
 			Date updatedCheckoutDate = DateUtils.addMonths(oldCheckoutDate, 1);
-			freq=freq+1;
+			freq = freq + 1;
 			renewCopy.setTimes(freq);
 			renewCopy.setCheckoutDate(updatedCheckoutDate);
 			checkoutService.updateCheckout(renewCopy);
 			model.addAttribute("val2", "RenewalSuccess");
 		}
-		
+
 		model.addAttribute("userid", user.getId());
 		model.addAttribute("useremail", user.getEmail());
 		model.addAttribute("user", user.getFirstName());
@@ -740,16 +802,18 @@ public class PatronController {
 		model.addAttribute("books", books);
 		return "checkedOutBooks";
 	}
-//	
+
+	//
 	@RequestMapping(value = "/add-to-waiting-list-{id}", method = RequestMethod.GET)
-	public @ResponseBody String addToWaitingList(@PathVariable("id") String id, @RequestParam("name") String userId, ModelMap model) {
-		Integer userid=Integer.parseInt(userId);
-		Integer bookId=Integer.parseInt(id);
+	public @ResponseBody String addToWaitingList(@PathVariable("id") String id, @RequestParam("name") String userId,
+			ModelMap model) {
+		Integer userid = Integer.parseInt(userId);
+		Integer bookId = Integer.parseInt(id);
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
 		User user = userService.findById(userid);
 
-		WaitList waitList=new WaitList();
+		WaitList waitList = new WaitList();
 		waitList.setBookId(bookId);
 		waitList.setBook(book);
 		waitList.setDateAdded(new Date());
@@ -759,12 +823,12 @@ public class PatronController {
 			waitListService.addRecord(waitList);
 		} catch (Exception e) {
 			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-			return "Failed";
-				
+				return "Failed";
+
 			}
 			return "Failed";
 		}
 		return "Added";
 	}
-	
+
 }

@@ -1,7 +1,9 @@
 package edu.sjsu.cmpe275.project.model;
 
-import java.io.Serializable; 
+import java.io.Serializable;
+import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -9,7 +11,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * @author Onkar Ganjewar
@@ -28,6 +35,11 @@ public class BookCopy implements Serializable  {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "book_id")
 	private Book books;
+	
+	@Column
+//	@Cascade({ CascadeType.ALL })
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "copy")
+	private List<BooksHoldList> holdListPersons;
 
 	public Integer getId() {
 		return id;
@@ -45,6 +57,14 @@ public class BookCopy implements Serializable  {
 		this.books = books;
 	}
 	
+	public List<BooksHoldList> getHoldListPersons() {
+		return holdListPersons;
+	}
+
+	public void setHoldListPersons(List<BooksHoldList> holdListPersons) {
+		this.holdListPersons = holdListPersons;
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj)
@@ -69,9 +89,10 @@ public class BookCopy implements Serializable  {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "BookCopy [Id="+id +"]";
+		return "BookCopy [id=" + id + ", books=" + books + ", holdListPersons=" + holdListPersons + "]";
 	}
+	
 }
