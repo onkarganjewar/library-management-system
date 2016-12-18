@@ -16,6 +16,7 @@ function addToCart(){
 		$.ajax({
 			url : 'http://localhost:8080/Cmpe275-Library-Management-System/patron/addToCart-'+ $('#bookId').val()+'?name='+$('#userid').val(),
 			type : 'GET',
+			async : false,
 			success: function (data) {
 				console.log(data);
 				if (data == "Success") {
@@ -34,6 +35,30 @@ function addToCart(){
 				else if (data == "Unavailable") {
 					if(confirm('Book is unavailable at this time. Would like to be added to the waiting list for this book?')){
 						console.log("YES Selected");
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/add-to-waiting-list-"+ $('#bookId').val()+'?name='+$('#userid').val();
+						$.ajax({
+			                type: "get",
+			                url: url,
+			                success: function(data){
+			            		console.log("SUCCESS CALLBACK");
+			            		console.log(data);
+			            		if (data == "Added") {
+			    					alert("You are now added to the waiting list for this book. You will receive an email as soon as the book is available.")
+			            			var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
+			    					window.location.replace(url);
+			    				} else if (data == "Failed") {
+			    					alert("Cannot be added to the waiting list. You are already added to the waiting list for this book.")
+			    					var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
+			    					window.location.replace(url);
+			    				} 
+			                }, error: function (textStatus, errorThrown) {
+			                    console.log("Error getting the data");
+			                    console.log("Text status"+textStatus);
+			                    console.log("Error thrown"+errorThrown);
+			                }
+						}); 
+					//	var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/add-to-waiting-list-"+ $('#bookId').val()+'?name='+$('#userid').val();
+						//window.location.replace(url);
 					}
 					else{
 						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
@@ -88,9 +113,9 @@ $(document).ready(function() {
 			<div class="col-xs-6">
 				<input type="hidden" id="val1" value="${val1 }"> <input
 					class="form-control" type="text" id="txtSearch"
-					placeholder="Search Book Name" name="txtSearch"> <input
+					placeholder="Search Book Name" name="txtSearch" style="margin: 0px 0px 0px 20px;"> <input
 					type="button" class="btn btn-primary" value="Search" id="btnSearch"
-					name="btnSearch" style="margin: 10px 0px 0px 0px;">
+					name="btnSearch" style="margin: 10px 0px 0px 20px;">
 				<input type="hidden" name ="useremail" id="useremail" value="${useremail }">	
 				<input type="hidden" name ="userid" id="userid" value="${userid }">	
 				
@@ -138,6 +163,11 @@ $(document).ready(function() {
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
 			<a href="<c:url value='/patron/viewCheckedOutBooks?name=${userid}' />" class="btn btn-primary" >View Checked Out Books</a>
+		</div>
+	</sec:authorize>
+	<sec:authorize access="hasRole('USER')">
+		<div class="well">
+			<a href="<c:url value='/patron/home' />" class="btn btn-primary" >Back to Home</a>
 		</div>
 	</sec:authorize>
 </body>

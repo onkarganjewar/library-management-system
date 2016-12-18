@@ -39,44 +39,12 @@ $(document).ready(function() {
 				
 			</div>
 		</div>
-		<div id="divResult">
-		<div class="panel-heading"><span class="lead">List of Books</span></div>
-		<!-- Default Panel Contents -->
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th>Publication Year</th>
-					<th>Location</th>
-					<th>Author</th>
-					<th>Title</th>
-					<th>Publisher</th>
-				</tr>
-			</thead>
-			<tbody>
-				<c:forEach items="${books}" var="book">
-					<tr>
-						<td>${book.publicationYear}</td>
-						<td>${book.libraryLocation}</td>
-						<td>${book.author}</td>
-						<td>${book.title}</td>
-						<td>${book.publisher}</td>
-						<sec:authorize access="hasRole('USER')">
-							<td><a href="<c:url value='/patron/checkout-book-${book.id}?name=${userid}'/>" class="btn btn-success custom-width">Checkout</a></td>
-						</sec:authorize>
-					</tr>
-				</c:forEach>
-			</tbody>
-		</table>
-	</div>
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/patron/viewCart?name=${userid}' />" class="btn btn-primary" >View Cart</a>
-		</div>
-	</sec:authorize>
-	<sec:authorize access="hasRole('USER')">
-		<div class="well">
-			<a href="<c:url value='/patron/viewCheckedOutBooks?name=${userid}' />" class="btn btn-primary" >View Checked Out Books</a>
+			<a href="<c:url value='/patron/viewCart?name=${userid}' />" class="btn btn-info btn-lg" style="width:400px; margin:0px 0px 0px 20px;" >View Cart</a>
+		    <a href="<c:url value='/patron/viewCheckedOutBooks?name=${userid}' />" class="btn btn-primary btn-lg" style="width:400px; margin:0px 0px 0px 300px;" >View Checked Out Books</a>
+			
 		</div>
 	</sec:authorize>
 </body>

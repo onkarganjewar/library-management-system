@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,12 +32,14 @@ import edu.sjsu.cmpe275.project.model.BookListWrapper;
 import edu.sjsu.cmpe275.project.model.Checkout;
 import edu.sjsu.cmpe275.project.model.MyCalendar;
 import edu.sjsu.cmpe275.project.model.User;
+import edu.sjsu.cmpe275.project.model.WaitList;
 import edu.sjsu.cmpe275.project.service.BookCartService;
 import edu.sjsu.cmpe275.project.service.BookCopyService;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.CheckoutService;
 import edu.sjsu.cmpe275.project.service.NotificationService;
 import edu.sjsu.cmpe275.project.service.UserService;
+import edu.sjsu.cmpe275.project.service.WaitListService;
 
 /**
  * @author Onkar Ganjewar
@@ -62,7 +65,9 @@ public class PatronController {
 	@Autowired
 	BookCartService cartService;
 
-	
+	@Autowired
+	WaitListService waitListService;
+
 	@Autowired
 	private BookService bookService;
 
@@ -384,6 +389,11 @@ public class PatronController {
 		}
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
+		
+		WaitList firstInLine = waitListService.getFirstInLineForBook(book.getId());
+		
+		firstInLine.setDateAssigned(new Date());
+		waitListService.updateRecord(firstInLine);
 		book.setAvailability("Available");
 		bookService.updateBook(book);
 		notificationService.sendReturnMail(returnCopy.getUser(), returnCopy);
@@ -396,6 +406,7 @@ public class PatronController {
 		for (Checkout checkout : checkedOutBooks) {
 			books.add(checkout.getBook());
 		}
+		
 		model.addAttribute("useremail",getPrincipal());
 		model.addAttribute("books", books);
 		return "checkedOutBooks";
@@ -728,6 +739,32 @@ public class PatronController {
 
 		model.addAttribute("books", books);
 		return "checkedOutBooks";
+	}
+//	
+	@RequestMapping(value = "/add-to-waiting-list-{id}", method = RequestMethod.GET)
+	public @ResponseBody String addToWaitingList(@PathVariable("id") String id, @RequestParam("name") String userId, ModelMap model) {
+		Integer userid=Integer.parseInt(userId);
+		Integer bookId=Integer.parseInt(id);
+		Book book = new Book();
+		book = (Book) bookService.findById(id);
+		User user = userService.findById(userid);
+
+		WaitList waitList=new WaitList();
+		waitList.setBookId(bookId);
+		waitList.setBook(book);
+		waitList.setDateAdded(new Date());
+		waitList.setUser(user);
+		waitList.setUserId(userid);
+		try {
+			waitListService.addRecord(waitList);
+		} catch (Exception e) {
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+			return "Failed";
+				
+			}
+			return "Failed";
+		}
+		return "Added";
 	}
 	
 }

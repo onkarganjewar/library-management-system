@@ -66,7 +66,7 @@ $(document).ready(function() {
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/patron/home' />" class="btn btn-primary" >Back to Home</a>
+			<a href="<c:url value='/patron/home' />" class="btn btn-primary btn-lg" >Back to Home</a>
 		</div>
 	</sec:authorize>
 </body>

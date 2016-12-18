@@ -53,9 +53,9 @@ public class WaitListServiceImpl implements WaitListService {
 	}
 
 	@Override
-	public User getFirstInLineForBook(Integer bookId) {
+	public WaitList getFirstInLineForBook(Integer bookId) {
 		List<WaitList> waitListArr = waitListDao.findByBookId(bookId);
-		return waitListArr.get(0).getUser();
+		return waitListArr.get(0);
 	}
 
 	@Override
@@ -77,5 +77,11 @@ public class WaitListServiceImpl implements WaitListService {
 	@Override
 	public List<WaitList> findAllRecords() {
 		return waitListDao.findAllRecords();
+	}
+
+	@Override
+	public void updateRecord(WaitList record) {
+		// TODO Auto-generated method stub
+		waitListDao.modify(record);
 	}
 }
