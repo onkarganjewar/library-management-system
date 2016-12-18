@@ -76,7 +76,7 @@ public class HoldListImpl extends AbstractDao<Serializable, BooksHoldList> imple
 		for (BooksHoldList holdList : holdListArr) {
 			Hibernate.initialize(holdList.getUser());
 			Hibernate.initialize(holdList.getBook());
-			Hibernate.initialize(holdList.getCopy());
+			Hibernate.initialize(holdList.getBookCopy());
 		}
 		return holdListArr;
 	}
@@ -90,7 +90,7 @@ public class HoldListImpl extends AbstractDao<Serializable, BooksHoldList> imple
 		for (BooksHoldList holdList : holdListArr) {
 			Hibernate.initialize(holdList.getUser());
 			Hibernate.initialize(holdList.getBook());
-			Hibernate.initialize(holdList.getCopy());
+			Hibernate.initialize(holdList.getBookCopy());
 		}
 		return holdListArr;
 	}
