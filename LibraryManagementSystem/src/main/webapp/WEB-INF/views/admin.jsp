@@ -36,6 +36,8 @@ $(document).ready(function() {
 			var url = "http://localhost:8080/Cmpe275-Library-Management-System/librarian/bookInfo-"+isbn;
 					window.location.replace(url);
 		});
+		
+		
 });
 
 
@@ -62,8 +64,8 @@ $(document).ready(function() {
 		<div class="form-group row">
  			 <div class="col-xs-6">
  			 <input type="hidden" id="val1" value="${val1 }">
-    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch">
-    		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 0px;">
+    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch" style="margin:0px 0px 0px 20px;">
+    		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 20px;">
   			</div>
 		</div>
 		<div class="panel-heading"><span class="lead">List of Books</span></div>

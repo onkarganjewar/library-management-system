@@ -19,8 +19,6 @@ import edu.sjsu.cmpe275.project.model.Checkout;
 @Service("checkoutService")
 @Transactional
 public class CheckoutServiceImpl implements CheckoutService{
-	@Autowired
-	private SessionFactory sessionFactory;
 
 	@Autowired
 	private CheckoutDao checkoutDao;
@@ -43,6 +41,18 @@ public class CheckoutServiceImpl implements CheckoutService{
 	@Override
 	public List<Checkout> findByUserId(int userId) {
 		return checkoutDao.findByUserId(userId);
+	}
+
+	@Override
+	public void updateCheckout(Checkout entity) {
+		// TODO Auto-generated method stub
+		checkoutDao.modify(entity);
+		
+	}
+
+	@Override
+	public List<Checkout> findAllRecords() {
+		return checkoutDao.findAllCopies();
 	}
 	
 }

@@ -13,6 +13,6 @@ public interface CheckoutDao {
 	void remove(Checkout entity);
 	List<Checkout> findByBookId (int bookId);
 	List<Checkout> findByUserId (int userId);
-	
-	
+	void modify(Checkout entity);
+	List<Checkout> findAllCopies ();
 }

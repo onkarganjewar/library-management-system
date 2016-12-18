@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -46,8 +47,12 @@ public class WaitListDaoImpl extends AbstractDao<Serializable, WaitList> impleme
 	public List<WaitList> findByBookId(Integer bookId) {
 		Criteria crit = createEntityCriteria();
 		crit.add(Restrictions.eq("bookId", bookId));
-		crit.addOrder(Order.asc("waitListId"));
+		crit.addOrder(Order.asc("dateAdded"));
 		List<WaitList> waitListArr = (List<WaitList>) crit.list();
+		for (WaitList waitList : waitListArr) {
+			Hibernate.initialize(waitList.getUser());
+			Hibernate.initialize(waitList.getBook());
+		}
 		return waitListArr;
 	}
 
@@ -57,6 +62,10 @@ public class WaitListDaoImpl extends AbstractDao<Serializable, WaitList> impleme
 		crit.add(Restrictions.eq("userId", userId));
 //		crit.addOrder(Order.asc("waitListId"));
 		List<WaitList> waitListArr = (List<WaitList>) crit.list();
+		for (WaitList waitList : waitListArr) {
+			Hibernate.initialize(waitList.getUser());
+			Hibernate.initialize(waitList.getBook());
+		}
 		return waitListArr;
 	}
 
@@ -74,5 +83,16 @@ public class WaitListDaoImpl extends AbstractDao<Serializable, WaitList> impleme
 		crit.add(Restrictions.eq("waitListId", waitListId));
 		WaitList waitList = (WaitList) crit.uniqueResult();
 		delete(waitList);
+	}
+
+	@Override
+	public List<WaitList> findAllRecords() {
+		return sessionFactory.getCurrentSession().createCriteria(WaitList.class).addOrder(Order.asc("dateAdded")).list();
+	}
+
+	@Override
+	public void modify(WaitList entity) {
+		// TODO Auto-generated method stub
+		update(entity);
 	}
 }

@@ -6,8 +6,20 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	
+	$('input[type=checkbox]').prop('checked', false);	
+	
+	
+	
+	
 		$('input[type=checkbox]').change(function(e){
-			   if ($('input[type=checkbox]:checked').length > 5) {
+			
+			if ($('input[type=checkbox]:checked').length==0) 
+				
+			     $('input[type="submit"]').prop('disabled', true);
+			else
+				$('input[type="submit"]').prop('disabled', false);
+			
+				   if ($('input[type=checkbox]:checked').length > 5) {
 			        $(this).prop('checked', false)
 			        alert("You can checkout only 5 books in a day");
 			   }
@@ -56,7 +68,7 @@ $(document).ready(function() {
 				
 					<tr>
 					<td><form:checkbox path="booksList[${i.index}].id"
-									value="${book.id}" />
+									value="${book.id}" checked="false"/>
 						</td>
 						<td>${book.publicationYear}</td>
 						<td>${book.author}</td>
@@ -70,11 +82,11 @@ $(document).ready(function() {
 		</table>
 	</div>
 	<div>
- 		<input type="submit" value="Checkout" class="btn btn-success custom-width" form="frmCheckout">
+ 		<input type="submit" value="Check Out" class="btn btn-success" form="frmCheckout" style="margin:0px 0px 0px 20px;" disabled="true" id="btnCheckout">
 		</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/patron/home' />" class="btn btn-primary" >Back to Home</a>
+			<a href="<c:url value='/patron/home' />" class="btn btn-primary btn-lg" >Back to Home</a>
 		</div>
 	</sec:authorize>
 </body>

@@ -126,4 +126,12 @@ public class UserServiceImpl implements UserService {
 		vToken = tokenRepository.save(vToken);
 		return vToken;
 	}
+
+	@Override
+	public void generateFines(int userId, double fine) {
+		User tempUser = dao.findById(userId);
+		double totalFine = tempUser.getFine() + fine;
+		tempUser.setFine(totalFine);
+		sessionFactory.getCurrentSession().update(tempUser);
+	}
 }

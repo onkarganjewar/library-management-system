@@ -6,11 +6,13 @@
 $(document).ready(function() {
 	
 		var val = $('#val1').val();
-		console.log(val);
+		var renewVal= $('#val2').val();
 		if (val == "success")
 			alert("Book returned succesfully.");
-		
-		
+		if(renewVal=="exceeded")
+			alert("Book cannot be renewed more than 2 times. Please return the book on or before the due date.");
+		else if(renewVal=="RenewalSuccess")
+			alert("Book renewed for a month successfully.");
 });
 
 
@@ -36,6 +38,8 @@ $(document).ready(function() {
 		<div class="panel-heading"><span class="lead">List of Checked Out Books</span></div>
 		<!-- Default Panel Contents -->
 		<input type="hidden" id="val1" value="${val1 }">
+		<input type="hidden" id="val2" value="${val2 }">
+		<input type="hidden" id="useremail" value="${useremail }">
 		<table class="table table-hover">
 			<thead>
 				<tr>
@@ -52,7 +56,8 @@ $(document).ready(function() {
 						<td>${book.author}</td>
 						<td>${book.title}</td>
 						<td>${book.publisher}</td>
-						<td><a href="<c:url value='/patron/return-book-${book.id}?name=${useremail}'/>" class="btn btn-success custom-width">Return</a></td>
+						<td><a href="<c:url value='/patron/return-book-${book.id}?name=${useremail}'/>" class="btn btn-danger custom-width">Return</a></td>
+						<td><a href="<c:url value='/patron/renew-book-${book.id}?name=${useremail}'/>" class="btn btn-info custom-width">Renew</a></td>
 						
 					</tr>
 				</c:forEach>
@@ -61,7 +66,7 @@ $(document).ready(function() {
 	</div>
 	<sec:authorize access="hasRole('USER')">
 		<div class="well">
-			<a href="<c:url value='/patron/home' />" class="btn btn-primary" >Back to Home</a>
+			<a href="<c:url value='/patron/home' />" class="btn btn-primary btn-lg" >Back to Home</a>
 		</div>
 	</sec:authorize>
 </body>

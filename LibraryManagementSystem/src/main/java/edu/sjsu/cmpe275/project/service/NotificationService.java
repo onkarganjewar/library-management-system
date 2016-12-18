@@ -12,4 +12,5 @@ public interface NotificationService {
 	void sendReturnMail (User user, Checkout checkout);
 	void sendRegistrationConfirmationMail (User user, String applicationUrl);
 	void sendRegistrationCompleteMail (User user, String applicationUrl);
+	void sendDueDateAlertMail (Checkout checkout, Integer dueWithin);
 }

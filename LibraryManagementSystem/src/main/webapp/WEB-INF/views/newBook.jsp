@@ -30,7 +30,7 @@ function checkValid(){
                 <div class="form-group col-md-12">
                     <label class="col-md-3 control-lable" for="publicationYear">Publication Year</label>
                     <div class="col-md-7">
-                        <form:input type="text" path="publicationYear" id="publicationYear" class="form-control input-sm"/>
+                        <form:input type="text" path="publicationYear" id="publicationYear" class="form-control input-sm" autofocus="true"/>
                         <div class="has-error">
                             <form:errors path="publicationYear" class="help-inline"/>
                         </div>

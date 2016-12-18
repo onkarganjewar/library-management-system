@@ -15,7 +15,9 @@ public interface WaitListService {
 	public void deleteRecordById(Integer waitListId);
 	public List<User> findAllUsersForBook (Integer bookId);
 	public List<Book> findAllBooksForUser (Integer userId);
-	public User getFirstInLineForBook (Integer bookId);
+	public WaitList getFirstInLineForBook (Integer bookId);
 	public void removeUserFromWaitList (Integer userId, Integer bookId);
 	public WaitList getRecordByWaitListId (Integer waitListId);
+	public List<WaitList> findAllRecords ();
+	public void updateRecord(WaitList record);
 }

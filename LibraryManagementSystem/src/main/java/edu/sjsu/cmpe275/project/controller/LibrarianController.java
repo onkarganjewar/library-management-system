@@ -67,6 +67,7 @@ public class LibrarianController {
 
 	
 
+		
 	/**
 	 * Renders the book registration page for the librarian.
 	 * @param model ModelMap holding the book data.
@@ -234,6 +235,33 @@ public class LibrarianController {
 		return "admin";
 	}
 
+	
+	@RequestMapping(value = { "/delete-book-search-{id}" }, method = RequestMethod.GET)
+	public String deleteBookFromSearch(@PathVariable String id, ModelMap mo) {
+		Book book = bookService.findById(id);
+		String bookTitle=book.getTitle();
+		boolean exceptionOccured = false;
+		try {
+			bookService.deleteBook(Integer.parseInt(id));
+		} catch (Exception e) {
+			exceptionOccured = true;
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+				mo.addAttribute("val1", "failure");
+			} else {
+				mo.addAttribute("val1", "exception");
+			}
+		}
+
+		if (!exceptionOccured)
+			mo.addAttribute("val1", "Success");
+		
+		List<Book> books = (List<Book>) bookService.findByTitle(bookTitle);
+		mo.addAttribute("books", books);
+		String email_user = getPrincipal();
+		User currentuser = userService.findByEmail(email_user);
+		mo.addAttribute("user", currentuser.getFirstName());
+		return "searchResults";
+	}
 	/**
 	 * Renders the book registration page and populates the fields using ISBN
 	 * @param isbn ISBN to search the book from

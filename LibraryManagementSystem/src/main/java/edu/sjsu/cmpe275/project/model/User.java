@@ -60,6 +60,9 @@ public class User implements Serializable {
 	@ValidUnivId
 	@Column(name = "UNIVERSITY_ID", nullable = false)
 	private String uId;
+	
+	@Column(name = "FINE", nullable = false)
+	private double fine;
 
 //	@NotEmpty
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -135,6 +138,14 @@ public class User implements Serializable {
 
 	public void setuId(String uId) {
 		this.uId = uId;
+	}
+
+	public double getFine() {
+		return fine;
+	}
+
+	public void setFine(double fine) {
+		this.fine = fine;
 	}
 
 	public boolean isEnabled() {

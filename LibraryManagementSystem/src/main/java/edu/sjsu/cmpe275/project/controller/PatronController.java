@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,12 +32,14 @@ import edu.sjsu.cmpe275.project.model.BookListWrapper;
 import edu.sjsu.cmpe275.project.model.Checkout;
 import edu.sjsu.cmpe275.project.model.MyCalendar;
 import edu.sjsu.cmpe275.project.model.User;
+import edu.sjsu.cmpe275.project.model.WaitList;
 import edu.sjsu.cmpe275.project.service.BookCartService;
 import edu.sjsu.cmpe275.project.service.BookCopyService;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.CheckoutService;
 import edu.sjsu.cmpe275.project.service.NotificationService;
 import edu.sjsu.cmpe275.project.service.UserService;
+import edu.sjsu.cmpe275.project.service.WaitListService;
 
 /**
  * @author Onkar Ganjewar
@@ -62,7 +65,9 @@ public class PatronController {
 	@Autowired
 	BookCartService cartService;
 
-	
+	@Autowired
+	WaitListService waitListService;
+
 	@Autowired
 	private BookService bookService;
 
@@ -273,6 +278,7 @@ public class PatronController {
 		checkout.setUser(user);
 		checkout.setBookId(bookId);
 		checkout.setUserId(userId);
+		checkout.setTimes(0);
 		List<Checkout> checkoutCopies = new ArrayList<Checkout>();
 		checkoutCopies.add(checkout);
 		book.setCheckoutCopies(checkoutCopies);
@@ -345,19 +351,17 @@ public class PatronController {
 	 * @return checkedOutBooks.jsp
 	 */
 	@RequestMapping(value = "/viewCheckedOutBooks", method = RequestMethod.GET)
-	public String renderCheckedOutBooks(@RequestParam("name") String email, ModelMap model) {
+	public String renderCheckedOutBooks(@RequestParam("name") String userId, ModelMap model) {
 
-		User current_user = userService.findByEmail(email);
-		List<Checkout> checkedOutBooksList = checkoutService.findByUserId(current_user.getId());
+		User currentuser = userService.findById(Integer.parseInt(userId));
+		List<Checkout> checkedOutBooksList = checkoutService.findByUserId(Integer.parseInt(userId));
 		List<Book> books = new ArrayList<Book>();
 		for (Checkout checkout : checkedOutBooksList) {
 			books.add(checkout.getBook());
 		}
 		model.addAttribute("books", books);
-		String email_user = getPrincipal();
-		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
-		model.addAttribute("useremail", getPrincipal());
+		model.addAttribute("useremail", currentuser.getEmail());
 		return "checkedOutBooks";
 	}
 
@@ -385,6 +389,13 @@ public class PatronController {
 		}
 		System.out.println(returnCopy);
 		checkoutService.removeCheckout(returnCopy);
+		
+		WaitList firstInLine = waitListService.getFirstInLineForBook(book.getId());
+		
+		firstInLine.setDateAssigned(new Date());
+		waitListService.updateRecord(firstInLine);
+		book.setAvailability("Available");
+		bookService.updateBook(book);
 		notificationService.sendReturnMail(returnCopy.getUser(), returnCopy);
 
 		model.addAttribute("val1", "success");
@@ -395,6 +406,8 @@ public class PatronController {
 		for (Checkout checkout : checkedOutBooks) {
 			books.add(checkout.getBook());
 		}
+		
+		model.addAttribute("useremail",getPrincipal());
 		model.addAttribute("books", books);
 		return "checkedOutBooks";
 	}
@@ -404,7 +417,9 @@ public class PatronController {
 	public @ResponseBody String addToCart (@PathVariable("id") String id, @RequestParam("name") String userid,ModelMap model) {
 		int userId = Integer.parseInt(userid);
 		int bookId = Integer.parseInt(id);
-
+		List<Checkout> checkedOutCopies = checkoutService.findByBookId(bookId);
+		List<BookCopy> bookCopies = bookCopyService.findAllByBook(bookService.findById(id));
+		
 		// Check whether the user holds the different copy of the given book
 		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
 		if (checkoutUsersList != null && !checkoutUsersList.isEmpty()) {
@@ -414,6 +429,10 @@ public class PatronController {
 				}
 			}
 		}
+		if (bookCopies.size() == checkedOutCopies.size())
+			return "Unavailable";
+		
+		
 		BookCart entity = new BookCart();
 		entity.setBookId(bookId);
 		entity.setUserId(userId);
@@ -529,12 +548,11 @@ public class PatronController {
 		model.addAttribute("bookTitle", returnTitle);
 		model.addAttribute("books",selectedBooks);
 		
-		//checkoutBook (userId, bookService.findById(book.getId().toString()));
-//		model.addAttribute("bookListWrapper", bookListWrapper);
-//		model.addAttribute("user", user.getFirstName());
-//		model.addAttribute("useremail", getPrincipal());
-//		model.addAttribute("val1", "success");
+		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		model.addAttribute("due", dueDate.toString());
+		
 		model.addAttribute("userid", user.getId());
+		
 		return "confirmedCheckout";
 		
 	}
@@ -552,6 +570,9 @@ public class PatronController {
 		// Get the list of checked out copies for the given book
 		List<Checkout> checkoutBooksList = checkoutService.findByBookId(bookId);
 
+		if (allBookCopies.size() == 1)
+			lastCopy = true;
+		
 		// Check whether any copy of the given book is available for rent
 		if (checkoutBooksList != null && !checkoutBooksList.isEmpty()) {
 			for (Checkout checkout : checkoutBooksList) {
@@ -563,7 +584,7 @@ public class PatronController {
 				// available = false;
 				bookService.updateBook(book);
 				return "BookCopyNotAvailable";
-			} else if (allBookCopies.size() <= (checkoutBooksList.size() - 1)) {
+			} else if (allBookCopies.size()  == (checkoutBooksList.size() + 1)) {
 				lastCopy = true;
 			}
 				// Get the list of book copies for the given checked-out book
@@ -651,6 +672,7 @@ public class PatronController {
 		checkout.setUser(user);
 		checkout.setBookId(bookId);
 		checkout.setUserId(userId);
+		checkout.setTimes(0);
 		List<Checkout> checkoutCopies = new ArrayList<Checkout>();
 		checkoutCopies.add(checkout);
 		book.setCheckoutCopies(checkoutCopies);
@@ -663,6 +685,7 @@ public class PatronController {
 			}
 			return "Failure";
 		}
+		cartService.removeFromCart(userId, bookId);
 
 		notificationService.sendCheckoutMail(checkout.getUser(), checkout);
 		// Update the respective book and user entities to
@@ -673,6 +696,75 @@ public class PatronController {
 		userService.updateUser(user);
 		return "Success";
 	}
+	
+	
+	@RequestMapping(value = "/renew-book-{id}", method = RequestMethod.GET)
+	public String renewBook(@PathVariable("id") String id, @RequestParam("name") String username, ModelMap model) {
+		Book book = new Book();
+		book = (Book) bookService.findById(id);
+		User user = userService.findByEmail(username);
+		Checkout renewCopy = new Checkout();
+		List<Checkout> chCopies = checkoutService.findByUserId(user.getId());
+		for (Checkout checkout : chCopies) {
+			if (checkout.getUserId() == user.getId() && checkout.getBookId() == book.getId()) {
+				renewCopy = checkout;
+				break;
+			}
+		}
+		System.out.println(renewCopy);
+		Integer freq=renewCopy.getTimes();
+		if(freq>=2)
+		{
+			model.addAttribute("val2", "exceeded");
+		}
+		else
+		{
+			Date oldCheckoutDate=renewCopy.getCheckoutDate();
+			Date updatedCheckoutDate = DateUtils.addMonths(oldCheckoutDate, 1);
+			freq=freq+1;
+			renewCopy.setTimes(freq);
+			renewCopy.setCheckoutDate(updatedCheckoutDate);
+			checkoutService.updateCheckout(renewCopy);
+			model.addAttribute("val2", "RenewalSuccess");
+		}
+		
+		model.addAttribute("userid", user.getId());
+		model.addAttribute("useremail", user.getEmail());
+		model.addAttribute("user", user.getFirstName());
+		List<Checkout> checkedOutBooks = checkoutService.findByUserId(user.getId());
+		List<Book> books = new ArrayList<Book>();
+		for (Checkout checkout : checkedOutBooks) {
+			books.add(checkout.getBook());
+		}
 
+		model.addAttribute("books", books);
+		return "checkedOutBooks";
+	}
+//	
+	@RequestMapping(value = "/add-to-waiting-list-{id}", method = RequestMethod.GET)
+	public @ResponseBody String addToWaitingList(@PathVariable("id") String id, @RequestParam("name") String userId, ModelMap model) {
+		Integer userid=Integer.parseInt(userId);
+		Integer bookId=Integer.parseInt(id);
+		Book book = new Book();
+		book = (Book) bookService.findById(id);
+		User user = userService.findById(userid);
+
+		WaitList waitList=new WaitList();
+		waitList.setBookId(bookId);
+		waitList.setBook(book);
+		waitList.setDateAdded(new Date());
+		waitList.setUser(user);
+		waitList.setUserId(userid);
+		try {
+			waitListService.addRecord(waitList);
+		} catch (Exception e) {
+			if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+			return "Failed";
+				
+			}
+			return "Failed";
+		}
+		return "Added";
+	}
 	
 }
