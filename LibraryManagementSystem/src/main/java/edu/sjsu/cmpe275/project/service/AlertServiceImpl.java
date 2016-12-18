@@ -12,6 +12,7 @@ import java.util.Map;
 
 
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,12 +39,19 @@ public class AlertServiceImpl implements AlertService {
 
 	@Override
 	public void sendAlerts(Date testDate, boolean debug) {
-
+		List<Map<Checkout, Integer>> checkoutCopiesDue = null;
 		// Check for all the books that are due within 5 days
-		List<Map<Checkout, Integer>> checkoutCopiesDue = checkDueDates(testDate);
+		try {
+			checkoutCopiesDue = checkDueDates(testDate);
+		} catch (IllegalArgumentException e) {
+			LOGGER.error("No checked out copies");
+			throw new ServiceException("Checked out copies not found");
+		} catch (Exception e) {
+			LOGGER.error("Something went horribly wrong");
+		}
 
-		if (checkoutCopiesDue.isEmpty())
-			throw new IllegalArgumentException("No copies due");
+		if (checkoutCopiesDue.isEmpty()|| checkoutCopiesDue == null)
+			throw new ServiceException("No copies due");
 
 		if (debug) {
 			for (Map<Checkout, Integer> map : checkoutCopiesDue) {
@@ -76,6 +84,9 @@ public class AlertServiceImpl implements AlertService {
 	public void generateFines(Date testDate, boolean debug) {
 		
 		List<Checkout> allCheckedOut = checkoutService.findAllRecords();
+		if (allCheckedOut.isEmpty()|| allCheckedOut == null)
+			throw new ServiceException("Checked out copies not found");
+
 		for (Checkout checkout : allCheckedOut) {
 			int userId = (int)checkout.getUserId();
 			Date dueDate = calculateDueDate(checkout.getCheckoutDate());
@@ -96,6 +107,8 @@ public class AlertServiceImpl implements AlertService {
 	private List <Map<Checkout, Integer>> checkDueDates(Date date) {
 		List <Map<Checkout, Integer>> datesArr = new ArrayList<Map<Checkout, Integer>>();
 		List<Checkout> allCheckedOut = checkoutService.findAllRecords();
+			if (allCheckedOut == null || allCheckedOut.isEmpty())
+				throw new IllegalArgumentException("Checkout copies not found");
 		for (Checkout checkout : allCheckedOut) {
 			Map<Checkout, Integer> checkoutDateDiffMap = new HashMap<Checkout, Integer>();
 			Date dateCheckedOut = checkout.getCheckoutDate();
@@ -122,10 +135,10 @@ public class AlertServiceImpl implements AlertService {
 	}
 
 	/**
-	 * 
+	 * Calculates a date difference in days for two dates
 	 * @param newerDate
 	 * @param olderDate
-	 * @return
+	 * @return count of days in between
 	 */
 	private int getDateDiffInDays(Date newerDate, Date olderDate) {
 		long diffInMili = (newerDate.getTime() - olderDate.getTime()) ;
@@ -136,7 +149,6 @@ public class AlertServiceImpl implements AlertService {
 		if ((division > 0) && (remainder > 0))
 			return (int) (division + 1);
 		return (int) division;
-//		return (int) ((newerDate.getTime() - olderDate.getTime()) / (1000 * 60 * 60 * 24));
 	}
 
 }
