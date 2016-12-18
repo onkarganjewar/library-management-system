@@ -24,5 +24,10 @@ public class BookListWrapper {
 	public void setBooksList(List<Book> booksList) {
 		this.booksList = booksList;
 	}
+
+	@Override
+	public String toString() {
+		return "BookListWrapper [booksList=" + booksList + "]";
+	}
 	
 }
