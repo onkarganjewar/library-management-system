@@ -157,6 +157,7 @@ $(document).ready(function() {
 				<tr>
 					<th>Publication Year</th>
 					<th>Location</th>
+					<th>Availability</th>
 					<th>Author</th>
 					<th>Title</th>
 					<th>Publisher</th>
@@ -168,6 +169,7 @@ $(document).ready(function() {
 						<tr>
 							<td>${book.publicationYear}</td>
 							<td>${book.libraryLocation}</td>
+							<td>${book.availability}</td>
 							<td>${book.author}</td>
 							<td><input type="hidden" id="bookName" name="bookName" value="${book.title}" /> ${book.title}</td>
 							<td>${book.publisher}</td>

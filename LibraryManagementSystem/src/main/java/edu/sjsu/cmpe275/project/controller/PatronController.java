@@ -434,7 +434,7 @@ public class PatronController {
 
 		if (waitListExists) {
 			firstInLine.setDateAssigned(new Date());
-			// waitListService.updateRecord(firstInLine);
+			waitListService.deleteRecordById(firstInLine.getWaitListId());
 			BooksHoldList holdList = new BooksHoldList();
 			holdList.setBook(firstInLine.getBook());
 			holdList.setBookCopyId(returnCopy.getCopy().getId());
@@ -474,11 +474,26 @@ public class PatronController {
 			ModelMap model) {
 		int userId = Integer.parseInt(userid);
 		int bookId = Integer.parseInt(id);
+		boolean onHold = false;
 		List<Checkout> checkedOutCopies = checkoutService.findByBookId(bookId);
 		List<BookCopy> bookCopies = bookCopyService.findAllByBook(bookService.findById(id));
 //		List<User> usersList =	holdListService.findAllUsersForBook(bookId);
 		List<BookCopy> holdCopies = holdListService.findAllBookCopies(bookId);
-		BooksHoldList firstHold = holdListService.getFirstInLineForBook(bookId);
+		BooksHoldList firstHold = null;
+		try {
+			firstHold = holdListService.getFirstInLineForBook(bookId);
+		} catch (ServiceException e) {
+			logger.debug(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage());
+		}
+
+		if (firstHold != null) {
+			if (firstHold.getUserId().equals(userId)) {
+				onHold = true;
+			}
+		}
+			
 		// Check whether the user holds the different copy of the given book
 		List<Checkout> checkoutUsersList = checkoutService.findByUserId(userId);
 		if (checkoutUsersList != null && !checkoutUsersList.isEmpty()) {
@@ -491,10 +506,9 @@ public class PatronController {
 		
 		int outCopies = (checkedOutCopies.size() + holdCopies.size());
 		int allCopies = bookCopies.size();
-		if (allCopies == checkedOutCopies.size() )
+		if (allCopies == checkedOutCopies.size() && (!onHold) )
 			return "Unavailable";
-		
-		if (allCopies == outCopies)
+		if (allCopies == outCopies && (!onHold))
 			return "OnHold";
 
 		BookCart entity = new BookCart();
