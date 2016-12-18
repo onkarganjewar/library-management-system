@@ -3,6 +3,7 @@ package edu.sjsu.cmpe275.project.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,8 @@ public class HoldListServiceImpl implements HoldListService {
 	@Override
 	public BooksHoldList getFirstInLineForBook(Integer bookId) {
 		List<BooksHoldList> holdListArr = holdListDao.findByBookId(bookId);
+		if (holdListArr.isEmpty() || holdListArr == null)
+			throw new ServiceException("No hold list for this book");
 		return holdListArr.get(0);
 	}
 
