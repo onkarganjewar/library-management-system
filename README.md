@@ -93,7 +93,7 @@ __You are recommended to use a Source Control Management (SCM) system to manage 
 
 Your app must be built by yourself, and cannot be based on the code base of any existing app. If you used any code not written by yourself, it **must be** clearly documented in your README.TXT file, unless it is part of publicly available libraries. *If your app is already used to serve the requirements of any other class, it will not be accepted by this class.*
 
- __In the case any form of cheating is confirmed, your will get an F grade for this class.__
+ __In the case of any form of cheating is confirmed, you will get an F grade for this class.__
 
 
 ## Deliverables and Grading
