@@ -10,6 +10,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -19,6 +20,10 @@ import org.hibernate.annotations.GenericGenerator;
  * @author Onkar Ganjewar
  */
 
+/**
+ * @author Onkar Ganjewar
+ * 
+ */
 @Entity
 @Table(name = "hold_list",
 uniqueConstraints = {@UniqueConstraint(columnNames = {"book_id", "user_id"})})
@@ -61,10 +66,10 @@ public class BooksHoldList {
 	private User user;
 
     @Id
-    @ManyToOne
+    @OneToOne
 	@MapsId("bookCopyId")
-	@JoinColumn(name = "bookCopy_id", referencedColumnName = "id")
-	private BookCopy copy;
+	@JoinColumn(name = "book_copy_id", referencedColumnName = "id")
+	private BookCopy bookCopy;
 
 	public BooksHoldList() {
 	}
@@ -143,18 +148,19 @@ public class BooksHoldList {
 		this.user = user;
 	}
 
-	public BookCopy getCopy() {
-		return copy;
+
+	public BookCopy getBookCopy() {
+		return bookCopy;
 	}
 
-	public void setCopy(BookCopy copy) {
-		this.copy = copy;
+	public void setBookCopy(BookCopy bookCopy) {
+		this.bookCopy = bookCopy;
 	}
 
 	@Override
 	public String toString() {
 		return "BooksHoldList [holdListId=" + holdListId + ", userId=" + userId + ", bookId=" + bookId + ", bookCopyId="
-				+ bookCopyId + ", dateAssigned=" + dateAssigned + ", book=" + book + ", user=" + user + ", copy=" + copy
+				+ bookCopyId + ", dateAssigned=" + dateAssigned + ", book=" + book + ", user=" + user + ", copy=" + bookCopy
 				+ "]";
 	}
 
