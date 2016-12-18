@@ -85,6 +85,11 @@ public class User implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<WaitList> waitListPersons;
 	
+	@Column
+	@Cascade({ CascadeType.ALL })
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<BooksHoldList> holdListPersons;
+	
 	private boolean enabled;
 
 	public User() {
@@ -186,6 +191,14 @@ public class User implements Serializable {
 
 	public void setWaitListPersons(List<WaitList> waitListPersons) {
 		this.waitListPersons = waitListPersons;
+	}
+
+	public List<BooksHoldList> getHoldListPersons() {
+		return holdListPersons;
+	}
+
+	public void setHoldListPersons(List<BooksHoldList> holdListPersons) {
+		this.holdListPersons = holdListPersons;
 	}
 
 	@Override

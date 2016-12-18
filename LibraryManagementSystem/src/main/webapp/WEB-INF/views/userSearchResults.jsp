@@ -31,8 +31,7 @@ function addToCart(){
 					alert("Book is already in the cart.");
 					var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
 					window.location.replace(url);
-				} 
-				else if (data == "Unavailable") {
+				} else if (data == "Unavailable") {
 					if(confirm('Book is unavailable at this time. Would like to be added to the waiting list for this book?')){
 						console.log("YES Selected");
 						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/add-to-waiting-list-"+ $('#bookId').val()+'?name='+$('#userid').val();
@@ -57,19 +56,46 @@ function addToCart(){
 			                    console.log("Error thrown"+errorThrown);
 			                }
 						}); 
-					//	var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/add-to-waiting-list-"+ $('#bookId').val()+'?name='+$('#userid').val();
-						//window.location.replace(url);
-					}
-					else{
+					} else {
 						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
 						window.location.replace(url);
 					}
-				} 
-				else if (data == "Failure") {
+				} else if (data == "Failure") {
 					alert("Cannot add the book. Something went wrong. Try again.");
 					var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
 					window.location.replace(url);
-				} 
+				} else if (data == "OnHold") {
+					if(confirm('Book is currently reserved for another patron right now. Would you like to be added to the waiting list for this book?')){
+						console.log("ON HOLD CALLBACK");
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/add-to-waiting-list-"+ $('#bookId').val()+'?name='+$('#userid').val();
+						$.ajax({
+			                type: "get",
+			                url: url,
+			                success: function(data){
+			            		console.log("SUCCESS CALLBACK");
+			            		console.log(data);
+			            		if (data == "Added") {
+			    					alert("You are now added to the waiting list for this book. You will receive an email as soon as the book is available.")
+			            			var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
+			    					window.location.replace(url);
+			    				} else if (data == "Failed") {
+			    					alert("Cannot be added to the waiting list. You are already added to the waiting list for this book.")
+			    					var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
+			    					window.location.replace(url);
+			    				} 
+			                }, error: function (textStatus, errorThrown) {
+			                    console.log("Error getting the data");
+			                    console.log("Text status");
+			                    console.log(textStatus);
+			                    console.log("Error thrown");
+			                    console.log(errorThrown);
+			                }
+						}); 
+					} else {
+						var url = "http://localhost:8080/Cmpe275-Library-Management-System/patron/cart-search-book-"+ $('#bookName').val()+'?name='+$('#userid').val();
+						window.location.replace(url);
+					}
+				}
             },
             error: function (textStatus, errorThrown) {
                 alert("Error getting the data");

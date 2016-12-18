@@ -70,12 +70,39 @@ public class CustomMailSender {
 			final SimpleMailMessage dueDateAlertEmail = constructEmailMessageAlert(dueWithin, checkout);
 			javaMailSender.send(dueDateAlertEmail);
 			break;
+		
+		case 5:
+			final SimpleMailMessage bookAvailableAlertEmail = constructBookAvailableAlert(dueWithin, checkout);
+			javaMailSender.send(bookAvailableAlertEmail);
+			break;
 
 		default:
 			break;
 		}
 		System.out.println("Execute method asynchronously. " + Thread.currentThread().getName());
 		return new AsyncResult<Void>(null);
+	}
+
+	/**
+	 * @param dueWithin
+	 * @param checkout
+	 * @return
+	 */
+	private SimpleMailMessage constructBookAvailableAlert(Integer dueWithin, Checkout checkout) {
+
+		final String recipientAddress = checkout.getUser().getEmail();
+		final String subject = "Book Available Notification";
+		final SimpleMailMessage email = new SimpleMailMessage();
+		email.setTo(recipientAddress);
+		email.setSubject(subject);
+
+		Date dueDate = DateUtils.addMonths(checkout.getCheckoutDate(), 1);
+		email.setText("Book with the following details is available for checkout now. Please checkout this book before " + dueWithin + " days:\r\n "
+				+ checkout.getBook().getTitle() + "\r\nAuthor : " + checkout.getBook().getAuthor() + "\r\nPublisher : "
+				+ checkout.getBook().getPublisher() + "\r\nPublication Year : "
+				+ checkout.getBook().getPublicationYear());
+		email.setFrom(env.getProperty("support.email"));
+		return email;
 	}
 
 	/**

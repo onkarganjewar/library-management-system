@@ -3,6 +3,7 @@ package edu.sjsu.cmpe275.project.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,8 @@ public class WaitListServiceImpl implements WaitListService {
 	@Override
 	public WaitList getFirstInLineForBook(Integer bookId) {
 		List<WaitList> waitListArr = waitListDao.findByBookId(bookId);
+		if (waitListArr == null || waitListArr.isEmpty())
+			throw new ServiceException("No waiting list");
 		return waitListArr.get(0);
 	}
 
