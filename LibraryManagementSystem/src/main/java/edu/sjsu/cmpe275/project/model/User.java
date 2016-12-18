@@ -62,7 +62,7 @@ public class User implements Serializable {
 	private String uId;
 	
 	@Column(name = "FINE", nullable = false)
-	private Integer fine;
+	private double fine;
 
 //	@NotEmpty
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -140,11 +140,11 @@ public class User implements Serializable {
 		this.uId = uId;
 	}
 
-	public Integer getFine() {
+	public double getFine() {
 		return fine;
 	}
 
-	public void setFine(Integer fine) {
+	public void setFine(double fine) {
 		this.fine = fine;
 	}
 

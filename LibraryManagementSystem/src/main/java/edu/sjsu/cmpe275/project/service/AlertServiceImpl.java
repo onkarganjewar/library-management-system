@@ -28,16 +28,19 @@ public class AlertServiceImpl implements AlertService {
 	static final Logger LOGGER = LoggerFactory.getLogger(AlertServiceImpl.class);
 
 	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private CheckoutService checkoutService;
 
 	@Autowired
 	private NotificationService notificationService;
 
 	@Override
-	public void sendAlerts(Date date, boolean debug) {
+	public void sendAlerts(Date testDate, boolean debug) {
 
 		// Check for all the books that are due within 5 days
-		List<Map<Checkout, Integer>> checkoutCopiesDue = checkDueDates(date);
+		List<Map<Checkout, Integer>> checkoutCopiesDue = checkDueDates(testDate);
 
 		if (checkoutCopiesDue.isEmpty())
 			throw new IllegalArgumentException("No copies due");
@@ -50,7 +53,6 @@ public class AlertServiceImpl implements AlertService {
 					System.out.println(pair.getKey() + " = " + pair.getValue()); 
 					Checkout checkout = (Checkout) pair.getKey();
 					Integer dueWithin = (Integer) pair.getValue();
-//					notificationService.sendRegistrationConfirmationMail(checkout.getUser(),"ASDASD");
 					notificationService.sendDueDateAlertMail(checkout, dueWithin);
 					it.remove(); // avoids a ConcurrentModificationException
 				}	
@@ -69,10 +71,24 @@ public class AlertServiceImpl implements AlertService {
 			}
 		}			
 	}
-//				notificationService.sendDueDateAlertMail(checkout, dueWithin);
 
+	@Override
+	public void generateFines(Date testDate, boolean debug) {
+		
+		List<Checkout> allCheckedOut = checkoutService.findAllRecords();
+		for (Checkout checkout : allCheckedOut) {
+			int userId = (int)checkout.getUserId();
+			Date dueDate = calculateDueDate(checkout.getCheckoutDate());
+			if (dueDate.before(testDate)) {
+				int daysOverDue = getDateDiffInDays(testDate, dueDate);
+				userService.generateFines(userId, daysOverDue);
+			}
+		}
+	}
+
+	
 	/**
-	 * 
+	 * Returns the list of checked out books that are due within 5 days
 	 * @param date
 	 * @return
 	 * @throws IllegalArgumentException
@@ -99,37 +115,28 @@ public class AlertServiceImpl implements AlertService {
 
 	/**
 	 * @param checkoutDate
-	 * @param date
+	 * @return due date
 	 */
-	private int getDateDiffInDays(Date checkoutDate, Date date) {
-		return (int) ((checkoutDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+	private Date calculateDueDate(Date checkoutDate) {
+		return DateUtils.addMonths(checkoutDate, 1);
 	}
 
 	/**
-	 * Get a diff between two dates
 	 * 
-	 * @param date1
-	 *            the oldest date
-	 * @param date2
-	 *            the newest date
-	 * @param timeUnit
-	 *            the unit in which you want the diff
-	 * @return the diff value, in the provided unit
+	 * @param newerDate
+	 * @param olderDate
+	 * @return
 	 */
-	// public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit)
-	// {
-	// long diffInMillies = date2.getTime() - date1.getTime();
-	// return timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
-	//
-	// Date startDate = date1; // Set start date
-	// Date endDate = date2; // Set end date
-	//
-	// long duration = endDate.getTime() - startDate.getTime();
-	//
-	// long diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
-	// long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
-	// long diffInHours = TimeUnit.MILLISECONDS.toHours(duration);
-	//
-	// }
+	private int getDateDiffInDays(Date newerDate, Date olderDate) {
+		long diffInMili = (newerDate.getTime() - olderDate.getTime()) ;
+		long hrsConverter = (1000 * 60 * 60 * 24);
+		long division = diffInMili / hrsConverter;
+		float remainder = diffInMili % hrsConverter;
+	
+		if ((division > 0) && (remainder > 0))
+			return (int) (division + 1);
+		return (int) division;
+//		return (int) ((newerDate.getTime() - olderDate.getTime()) / (1000 * 60 * 60 * 24));
+	}
 
 }

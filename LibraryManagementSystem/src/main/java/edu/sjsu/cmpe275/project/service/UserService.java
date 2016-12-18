@@ -10,24 +10,26 @@ import edu.sjsu.cmpe275.project.model.VerificationToken;
  */
 public interface UserService {
 
-	User findById(int id);
+	public User findById(int id);
 
-	User findByEmail(String email);
+	public User findByEmail(String email);
 
-	void saveUser(User user);
+	public void saveUser(User user);
 
-	void updateUser(User user);
+	public void updateUser(User user);
 
-	List<User> findAllUsers();
+	public List<User> findAllUsers();
 
-	void createVerificationTokenForUser(User user, String token);
+	public void createVerificationTokenForUser(User user, String token);
 
-	User findByToken(String verificationToken);
+	public User findByToken(String verificationToken);
 
-	VerificationToken getVerificationToken(String VerificationToken);
+	public VerificationToken getVerificationToken(String VerificationToken);
 
-	VerificationToken generateNewVerificationToken(String existingVerificationToken);
+	public VerificationToken generateNewVerificationToken(String existingVerificationToken);
 
-	String validateVerificationToken(String token);
+	public String validateVerificationToken(String token);
+	
+	public void generateFines(int userId, double fine);
 
 }

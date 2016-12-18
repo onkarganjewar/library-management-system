@@ -7,10 +7,10 @@ import java.util.Date;
  */
 public interface AlertService {
 	/**
-	 * 
 	 * @param date
 	 * @param debug
 	 * @throws IllegalArgumentException
 	 */
-	public void sendAlerts(Date date, boolean debug);
+	public void sendAlerts(Date testDate, boolean debug);
+	public void generateFines(Date testDate, boolean debug);
 }
