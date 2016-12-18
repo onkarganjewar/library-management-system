@@ -50,6 +50,7 @@ import edu.sjsu.cmpe275.project.service.HoldListService;
 import edu.sjsu.cmpe275.project.service.NotificationService;
 import edu.sjsu.cmpe275.project.service.UserService;
 import edu.sjsu.cmpe275.project.service.WaitListService;
+import edu.sjsu.cmpe275.project.util.CustomTimeService;
 
 /**
  * @author Onkar Ganjewar
@@ -88,6 +89,9 @@ public class PatronController {
 	@Autowired
 	private HoldListService holdListService;
 
+	@Autowired
+	private CustomTimeService myTimeService;
+
 	/**
 	 * Renders the home page for the patron.
 	 * 
@@ -102,8 +106,22 @@ public class PatronController {
 		model.addAttribute("user", currentuser.getFirstName());
 		model.addAttribute("useremail", getPrincipal());
 		model.addAttribute("userid", currentuser.getId());
+		System.out.println("GET DATE: "+myTimeService.getDate());
 		return "usersHome";
 	}
+	
+	@RequestMapping(value = "/demo", method = RequestMethod.GET)
+	public void renderAlerts() {
+		System.out.println(myTimeService.getDate());
+//		Calendar myCal = Calendar.getInstance();
+//		myCal.set(Calendar.YEAR, 2016);
+//		myCal.set(Calendar.MONTH, 11);
+//		myCal.set(Calendar.DAY_OF_MONTH, 28);
+//		Date customDate = myCal.getTime();
+//		myTimeService.setDate(customDate);
+//		System.out.println(myTimeService.getDate());
+	}
+	
 
 	@RequestMapping(value = "/confirm-checkout", method = RequestMethod.POST)
 	public String postFooList(@ModelAttribute("bookListWrapper") BookListWrapper fooListWrapper,
@@ -116,14 +134,16 @@ public class PatronController {
 				selectedBooks.add(bookService.findById(book.getId().toString()));
 		}
 		User user = userService.findById(Integer.parseInt(userid));
-		Date dueDate = DateUtils.addMonths(new Date(), 1);
+//		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		Date dueDate = DateUtils.addMonths(myTimeService.getDate(), 1);
+		
 		BookListWrapper bookListWrapper = new BookListWrapper();
 		bookListWrapper.setBooksList(selectedBooks);
 		model.addAttribute("bookListWrapper", bookListWrapper);
 		model.addAttribute("due", dueDate);
 		model.addAttribute("userid", Integer.parseInt(userid));
 		model.addAttribute("user", user.getFirstName());
-		System.out.println(fooListWrapper);
+		logger.info(fooListWrapper.toString());
 		return "ConfirmCheckoutBooks";
 	}
 
@@ -147,6 +167,7 @@ public class PatronController {
 		bookListWrapper.setBooksList(books);
 		model.addAttribute("bookListWrapper", bookListWrapper);
 		model.addAttribute("userid", currentuser.getId());
+//		System.out.println("GET DATE: "+ myTimeService.getDate());
 		return "userSearchResults";
 	}
 
@@ -167,7 +188,8 @@ public class PatronController {
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
 
-		Date dueDate = DateUtils.addMonths(new Date(), 1);
+//		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		Date dueDate = DateUtils.addMonths(myTimeService.getDate(), 1);
 		User user = userService.findByEmail(username);
 
 		model.addAttribute("userid", user.getId());
@@ -273,7 +295,8 @@ public class PatronController {
 		}
 
 		// Get the current date
-		Date currentDate = new Date();
+//		Date currentDate = new Date();
+		Date currentDate = myTimeService.getDate();
 		Calendar currentCal = Calendar.getInstance();
 		currentCal.setTime(currentDate);
 		int currentDay = currentCal.get(Calendar.DAY_OF_MONTH);
@@ -359,7 +382,9 @@ public class PatronController {
 		Book book = new Book();
 		book = (Book) bookService.findById(id);
 
-		Date dueDate = DateUtils.addMonths(new Date(), 1);
+//		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		Date dueDate = DateUtils.addMonths(myTimeService.getDate(), 1);
+		
 		User user = userService.findById(Integer.parseInt(userid));
 
 		model.addAttribute("useremail", getPrincipal());
@@ -433,7 +458,7 @@ public class PatronController {
 		}
 
 		if (waitListExists) {
-			firstInLine.setDateAssigned(new Date());
+			firstInLine.setDateAssigned(myTimeService.getDate());
 			waitListService.deleteRecordById(firstInLine.getWaitListId());
 			BooksHoldList holdList = new BooksHoldList();
 			holdList.setBook(firstInLine.getBook());
@@ -628,7 +653,10 @@ public class PatronController {
 		model.addAttribute("bookTitle", returnTitle);
 		model.addAttribute("books", selectedBooks);
 
-		Date dueDate = DateUtils.addMonths(new Date(), 1);
+//		Date dueDate = DateUtils.addMonths(new Date(), 1);
+		Date dueDate = DateUtils.addMonths(myTimeService.getDate(), 1);
+
+		
 		model.addAttribute("due", dueDate.toString());
 
 		model.addAttribute("userid", user.getId());
@@ -724,7 +752,8 @@ public class PatronController {
 		}
 
 		// Get the current date
-		Date currentDate = new Date();
+//		Date currentDate = new Date();
+		Date currentDate = myTimeService.getDate();
 		Calendar currentCal = Calendar.getInstance();
 		currentCal.setTime(currentDate);
 		int currentDay = currentCal.get(Calendar.DAY_OF_MONTH);
@@ -830,7 +859,7 @@ public class PatronController {
 		WaitList waitList = new WaitList();
 		waitList.setBookId(bookId);
 		waitList.setBook(book);
-		waitList.setDateAdded(new Date());
+		waitList.setDateAdded(myTimeService.getDate());
 		waitList.setUser(user);
 		waitList.setUserId(userid);
 		try {

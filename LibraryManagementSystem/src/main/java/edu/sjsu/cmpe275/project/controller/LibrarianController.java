@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,6 +31,7 @@ import edu.sjsu.cmpe275.project.model.User;
 import edu.sjsu.cmpe275.project.service.BookCopyService;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.UserService;
+import edu.sjsu.cmpe275.project.util.CustomTimeService;
 
 /**
  * @author Onkar Ganjewar
@@ -47,6 +50,9 @@ public class LibrarianController {
 	@Autowired
 	private BookService bookService;
 
+	@Autowired
+	private CustomTimeService myTimeService;
+
 
 	/**
 	 * Renders the home page for the librarian.
@@ -61,7 +67,7 @@ public class LibrarianController {
 		// TODO: Handle the condition if the user is anonymousUser
 		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
-
+		System.out.println(myTimeService.getDate());
 		return "admin";
 	}
 
@@ -78,6 +84,13 @@ public class LibrarianController {
 	public String renderBookRegistration(ModelMap model) {
 		Book books = new Book();
 		model.addAttribute("book", books);
+		Calendar myCal = Calendar.getInstance();
+		myCal.set(Calendar.YEAR, 2016);
+		myCal.set(Calendar.MONTH, 11);
+		myCal.set(Calendar.DAY_OF_MONTH, 28);
+		Date customDate = myCal.getTime();
+		myTimeService.setDate(customDate);
+		System.out.println(myTimeService.getDate());
 		return "newBook";
 	}
 
