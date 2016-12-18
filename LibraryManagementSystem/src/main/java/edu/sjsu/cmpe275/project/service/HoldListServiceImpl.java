@@ -90,7 +90,7 @@ public class HoldListServiceImpl implements HoldListService {
 		List<BooksHoldList> holdList =  holdListDao.findByBookId(bookId);
 		List<BookCopy> copiesList = new ArrayList<BookCopy>();
 		for (BooksHoldList booksHoldList : holdList) {
-			copiesList.add(booksHoldList.getCopy());
+			copiesList.add(booksHoldList.getBookCopy());
 		}
 		return copiesList;
 	}

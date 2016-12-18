@@ -439,7 +439,7 @@ public class PatronController {
 			holdList.setBook(firstInLine.getBook());
 			holdList.setBookCopyId(returnCopy.getCopy().getId());
 			holdList.setBookId(firstInLine.getBookId());
-			holdList.setCopy(returnCopy.getCopy());
+			holdList.setBookCopy(returnCopy.getCopy());
 			holdList.setDateAssigned(firstInLine.getDateAssigned());
 			holdList.setUser(firstInLine.getUser());
 			holdList.setUserId(firstInLine.getUserId());
