@@ -1,6 +1,5 @@
 package edu.sjsu.cmpe275.project.controller;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,11 +8,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.jsp.tagext.TryCatchFinally;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.service.spi.ServiceException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import edu.sjsu.cmpe275.project.dao.CheckoutDao;
 import edu.sjsu.cmpe275.project.dao.MyCalendarDao;
 import edu.sjsu.cmpe275.project.dao.UserDaoImpl;
 import edu.sjsu.cmpe275.project.model.Book;
@@ -124,7 +120,7 @@ public class PatronController {
 	
 
 	@RequestMapping(value = "/confirm-checkout", method = RequestMethod.POST)
-	public String postFooList(@ModelAttribute("bookListWrapper") BookListWrapper fooListWrapper,
+	public String renderVerifyCheckout(@ModelAttribute("bookListWrapper") BookListWrapper fooListWrapper,
 			@RequestParam("name") String userid, Model model) {
 
 		List<Book> selectedBooks = new ArrayList<Book>();

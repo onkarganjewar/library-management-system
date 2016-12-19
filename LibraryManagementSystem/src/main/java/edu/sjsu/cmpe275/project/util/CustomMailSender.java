@@ -96,9 +96,8 @@ public class CustomMailSender {
 		email.setTo(recipientAddress);
 		email.setSubject(subject);
 
-		Date dueDate = DateUtils.addMonths(checkout.getCheckoutDate(), 1);
 		email.setText("Book with the following details is available for checkout now. Please checkout this book before " + dueWithin + " days:\r\n "
-				+ checkout.getBook().getTitle() + "\r\nAuthor : " + checkout.getBook().getAuthor() + "\r\nPublisher : "
+				 + "\r\nTitle : " + checkout.getBook().getTitle() + "\r\nAuthor : " + checkout.getBook().getAuthor() + "\r\nPublisher : "
 				+ checkout.getBook().getPublisher() + "\r\nPublication Year : "
 				+ checkout.getBook().getPublicationYear());
 		email.setFrom(env.getProperty("support.email"));
