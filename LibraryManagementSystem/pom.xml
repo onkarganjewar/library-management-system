@@ -16,6 +16,9 @@
 		<springsecurity.version>4.2.0.RELEASE</springsecurity.version>
 		<spring-data-jpa.version>1.8.2.RELEASE</spring-data-jpa.version>
 
+		<!-- AspectJ -->
+		<aspectj.version>1.7.4</aspectj.version>
+		
 		<!-- persistence -->
 		<hibernate.version>4.3.11.Final</hibernate.version>
 		<mysql-connector-java.version>5.1.31</mysql-connector-java.version>
@@ -85,6 +88,19 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-taglibs</artifactId>
 			<version>${springsecurity.version}</version>
+		</dependency>
+
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>${aspectj.version}</version>
 		</dependency>
 
 		<!-- Hibernate -->
