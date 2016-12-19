@@ -47,5 +47,12 @@ $(document).ready(function() {
 			
 		</div>
 	</sec:authorize>
+	<div class="well"><strong>
+	<span style="width:500px;font-size:24;">Account Charges due:</span><div class="input-group"></strong>
+  <span class="input-group-addon" style="width:30px;height:60px;">$</span>
+  <strong><input type="text" class="form-control" style="width:60px;height:60px;" value="${fine }" readonly></strong>
+  <span class="input-group-addon" style="width:30px;height:60px;">.00</span>
+</div>
+	</div>
 </body>
 </html>

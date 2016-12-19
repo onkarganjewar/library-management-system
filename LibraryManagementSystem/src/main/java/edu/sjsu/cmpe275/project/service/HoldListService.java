@@ -21,4 +21,6 @@ public interface HoldListService {
 	public List<BooksHoldList> findAllRecords ();
 	public void updateRecord(BooksHoldList record);
 	public List<BookCopy> findAllBookCopies (Integer bookId);
+  	public List<BooksHoldList> findAllRecordsByBookId (Integer bookId);
+
 }
