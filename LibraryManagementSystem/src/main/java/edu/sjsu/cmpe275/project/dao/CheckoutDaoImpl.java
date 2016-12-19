@@ -65,7 +65,8 @@ public class CheckoutDaoImpl extends AbstractDao<Serializable, Checkout> impleme
 		List<Checkout> checkoutList = (List<Checkout>) crit.list();
 		if(checkoutList!=null && checkoutList.size()>0){
 			for (Checkout checkout : checkoutList) {
-				Hibernate.initialize(checkout.getCopy());	
+				Hibernate.initialize(checkout.getCopy());
+				Hibernate.initialize(checkout.getCopy().getBooks());
 			}
 		}
 		return checkoutList;

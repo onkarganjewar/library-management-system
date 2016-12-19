@@ -36,11 +36,6 @@ public class BookCopy implements Serializable  {
 	@JoinColumn(name = "book_id")
 	private Book books;
 	
-//	@JoinColumn	
-////	@Cascade({ CascadeType.ALL })
-////	@OneToOne(fetch = FetchType.LAZY, mappedBy = "bookCopy")
-//	private List<BooksHoldList> holdListPersons;
-
 	public Integer getId() {
 		return id;
 	}
@@ -56,14 +51,6 @@ public class BookCopy implements Serializable  {
 	public void setBooks(Book books) {
 		this.books = books;
 	}
-	
-//	public List<BooksHoldList> getHoldListPersons() {
-//		return holdListPersons;
-//	}
-//
-//	public void setHoldListPersons(List<BooksHoldList> holdListPersons) {
-//		this.holdListPersons = holdListPersons;
-//	}
 
 	@Override
 	public boolean equals(final Object obj) {
@@ -92,8 +79,7 @@ public class BookCopy implements Serializable  {
 
 	@Override
 	public String toString() {
-//		holdListPersons 
-		return "BookCopy [id=" + id + ", books=" + books + ", holdListPersons=" +  "]";
+		return "BookCopy [id=" + id + ", books=" + books + "]";
 	}
 	
 }
