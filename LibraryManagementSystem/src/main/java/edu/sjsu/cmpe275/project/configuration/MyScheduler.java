@@ -1,6 +1,6 @@
 package edu.sjsu.cmpe275.project.configuration;
 
-import org.hibernate.service.spi.ServiceException;
+import org.hibernate.service.spi.ServiceException; 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import edu.sjsu.cmpe275.project.util.CustomTimeService;
 @Component
 public class MyScheduler {
 
-	static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
+	static final Logger logger = LoggerFactory.getLogger(MyScheduler.class);
 
 	@Autowired
 	private AlertService alertService;
@@ -28,10 +28,10 @@ public class MyScheduler {
 	private CustomTimeService myTimeService;
 
 	/**
-	 * Runs a cron scheduler for every one minute to check if there are any
+	 * Runs a cron scheduler for everyday at 3 am everyday to check if there are any
 	 * alerts or fines to be generated/sent.
 	 */
-	@Scheduled(cron = "3 * * * * ?")
+	@Scheduled(cron = "0 0 3 * * ?")
 	public void scheduleRun() {
 		// complete scheduled work
 		logger.info("INFO LEVEL");

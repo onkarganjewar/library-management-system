@@ -6,7 +6,8 @@
  --%>
 <html>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
+<link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" />
+<script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	
@@ -37,9 +38,27 @@ $(document).ready(function() {
 					window.location.replace(url);
 		});
 		
+		$('#datetimepicker').on('changeDate', function(e) {
+			  console.log(e.date.toString());
+			  alert("Custom Date and Time is now set to "+e.date.toString());
+			  var timeDate=e.date.toString();
+			  var url="http://localhost:8080/Cmpe275-Library-Management-System/librarian/custom-time-"+timeDate;
+			  window.location.replace(url);
+			});
 		
 });
 
+
+</script>
+<script type="text/javascript">
+
+$(function() {
+    $('#datetimepicker').datetimepicker({
+      language: 'en',
+      pick12HourFormat: true
+    });
+  });
+ 
 
 </script>
 
@@ -48,6 +67,11 @@ $(document).ready(function() {
 	<title>Library Management System - Librarian</title>
 	<link href="<c:url value='/static/css/bootstrap.css' />" rel="stylesheet"></link>
     <link href="<c:url value='/static/css/app.css' />" rel="stylesheet"></link>
+    <link href="<c:url value='/static/css/bootstrap-datetimepicker.min.css'/>" rel="stylesheet"></link>
+    <script src="<c:url value='/static/css/bootstrap-datetimepicker.min.js'/>" ></script>
+     <link href="<c:url value='/static/css/bootstrap-datetimepicker.css'/>" rel="stylesheet"></link>
+    <script src="<c:url value='/static/css/bootstrap-datetimepicker.js'/>" ></script>
+        
 </head>
 
 <body>
@@ -58,13 +82,24 @@ $(document).ready(function() {
 	
 	<div class="col-md-4">
 	<a href="<c:url value="/logout" />" class="btn btn-default" style="margin: 20px 0px 0px 300px;">Logout</a>
+	
+	<div class="well">
+	
+			    	<div id="datetimepicker" class="input-append date form_datetime">
+	    				<input size="16" type="text" value="${dateTime}" style="width:230px;"  readonly>
+	    				<span class="add-on"><i class="icon-th" ></i></span>
+					</div>
+		 
+	</div>
+	
+	
 	</div>
 	</div>
 	<div class="panel panel-default">
 		<div class="form-group row">
  			 <div class="col-xs-6">
  			 <input type="hidden" id="val1" value="${val1 }">
-    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch" style="margin:0px 0px 0px 20px;">
+    		 	<input class="form-control" type="text" id="txtSearch" placeholder="Search Book Name" name="txtSearch" style="margin:0px 0px 0px 20px; height:30px;">
     		 	<input type="button" class="btn btn-primary" value="Search" id="btnSearch" name="btnSearch" style="margin:10px 0px 0px 20px;">
   			</div>
 		</div>
@@ -111,7 +146,7 @@ $(document).ready(function() {
      			 <span class="input-group-btn">
        			 <button class="btn btn-primary" type="button" id="btnAddByISBN" name="btnAddByISBN">Add New Book using ISBN</button>
       			</span>
-      				<input type="text" class="form-control" placeholder="Add ISBN" name="txtISBN" id="txtISBN">
+      				<input type="text" placeholder="Add ISBN" name="txtISBN" id="txtISBN" style="height:35px; width:150px; margin:1px 0px 0px 0px;">
     			</div>
  			 </div>
 		</div>

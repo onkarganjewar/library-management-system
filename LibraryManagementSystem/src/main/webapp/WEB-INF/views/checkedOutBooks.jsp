@@ -9,7 +9,9 @@ $(document).ready(function() {
 		var renewVal= $('#val2').val();
 		if (val == "success")
 			alert("Book returned succesfully.");
-		if(renewVal=="exceeded")
+		if(renewVal=="waitListExists")
+			alert("Book cannot be renewed as other patrons are on the waiting list for this book. Please return the book on or before the due date.");
+		else if(renewVal=="exceeded")
 			alert("Book cannot be renewed more than 2 times. Please return the book on or before the due date.");
 		else if(renewVal=="RenewalSuccess")
 			alert("Book renewed for a month successfully.");

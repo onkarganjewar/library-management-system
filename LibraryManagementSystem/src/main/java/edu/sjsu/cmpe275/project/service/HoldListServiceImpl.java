@@ -97,4 +97,8 @@ public class HoldListServiceImpl implements HoldListService {
 		}
 		return copiesList;
 	}
+	@Override
+	public List<BooksHoldList> findAllRecordsByBookId(Integer bookId) {
+		return holdListDao.findByBookId(bookId);
+	}
 }

@@ -9,8 +9,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+import org.hibernate.service.spi.ServiceException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.sjsu.cmpe275.project.configuration.AppConfig;
 import edu.sjsu.cmpe275.project.model.Book;
 import edu.sjsu.cmpe275.project.model.BookCopy;
 import edu.sjsu.cmpe275.project.model.User;
+import edu.sjsu.cmpe275.project.service.AlertService;
 import edu.sjsu.cmpe275.project.service.BookCopyService;
 import edu.sjsu.cmpe275.project.service.BookService;
 import edu.sjsu.cmpe275.project.service.UserService;
@@ -37,6 +42,11 @@ import edu.sjsu.cmpe275.project.util.CustomTimeService;
 @Controller
 @RequestMapping("/librarian")
 public class LibrarianController {
+
+	static final Logger logger = LoggerFactory.getLogger(LibrarianController.class);
+
+	@Autowired
+	private AlertService alertService;
 
 	@Autowired
 	private BookCopyService bookCopyService;
@@ -63,7 +73,7 @@ public class LibrarianController {
 		String email_user = getPrincipal();
 		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
-		System.out.println(myTimeService.getDate());
+		model.addAttribute("dateTime",myTimeService.getDate());
 		return "admin";
 	}
 
@@ -101,6 +111,8 @@ public class LibrarianController {
 		String email_user = getPrincipal();
 		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
+		model.addAttribute("dateTime",myTimeService.getDate());
+
 		return "searchResults";
 	}
 
@@ -387,6 +399,45 @@ public class LibrarianController {
 			userName = principal.toString();
 		}
 		return userName;
+	}
+	
+	@RequestMapping(value = "/custom-time-{timeDate}", method = RequestMethod.GET)
+	public String customTimer(@PathVariable String timeDate,ModelMap model) {
+		
+		Date customDate = new Date(timeDate);
+		myTimeService.setDate(customDate);
+		List<Book> books = bookService.findAllBooks();
+		model.addAttribute("books", books);
+		String email_user = getPrincipal();
+		triggerAlerts(customDate);
+		// TODO: Handle the condition if the user is anonymousUser
+		User currentuser = userService.findByEmail(email_user);
+		model.addAttribute("user", currentuser.getFirstName());
+		model.addAttribute("dateTime",myTimeService.getDate());
+		return "admin";
+	}
+
+	/**
+	 * Start the alert service to check for all the due dates and checkout dates
+	 * @param customDate Test date to compare the values against
+	 */
+	private void triggerAlerts(Date customDate) {
+		logger.info("Alert service triggered");
+		try {
+			alertService.sendAlerts(customDate, true);
+		} catch (ServiceException e) {
+			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Something went wrong");
+		}
+
+		try {
+			alertService.generateFines(customDate, true);
+		} catch (ServiceException e) {
+			logger.debug(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Something went wrong");
+		}
 	}
 
 

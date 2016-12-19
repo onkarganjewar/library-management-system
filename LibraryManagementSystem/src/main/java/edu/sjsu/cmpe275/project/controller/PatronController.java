@@ -103,6 +103,7 @@ public class PatronController {
 		model.addAttribute("useremail", getPrincipal());
 		model.addAttribute("userid", currentuser.getId());
 		System.out.println("GET DATE: "+myTimeService.getDate());
+		model.addAttribute("fine", currentuser.getFine());
 		return "usersHome";
 	}
 	
@@ -676,6 +677,12 @@ public class PatronController {
 
 		if (allBookCopies.size() == 1)
 			lastCopy = true;
+		
+		List<BooksHoldList> holdListArr = holdListService.findAllRecordsByBookId(bookId);
+		for (BooksHoldList booksHoldList : holdListArr) {
+			if (booksHoldList.getUserId().equals(userId))
+				holdListService.deleteRecordById(booksHoldList.getHoldListId());
+		}
 
 		// Check whether any copy of the given book is available for rent
 		if (checkoutBooksList != null && !checkoutBooksList.isEmpty()) {
@@ -805,6 +812,8 @@ public class PatronController {
 	@RequestMapping(value = "/renew-book-{id}", method = RequestMethod.GET)
 	public String renewBook(@PathVariable("id") String id, @RequestParam("name") String username, ModelMap model) {
 		Book book = new Book();
+		boolean waitListExists=false;
+		Integer bookId=Integer.parseInt(id);
 		book = (Book) bookService.findById(id);
 		User user = userService.findByEmail(username);
 		Checkout renewCopy = new Checkout();
@@ -815,18 +824,26 @@ public class PatronController {
 				break;
 			}
 		}
-		System.out.println(renewCopy);
-		Integer freq = renewCopy.getTimes();
-		if (freq >= 2) {
-			model.addAttribute("val2", "exceeded");
-		} else {
-			Date oldCheckoutDate = renewCopy.getCheckoutDate();
-			Date updatedCheckoutDate = DateUtils.addMonths(oldCheckoutDate, 1);
-			freq = freq + 1;
-			renewCopy.setTimes(freq);
-			renewCopy.setCheckoutDate(updatedCheckoutDate);
-			checkoutService.updateCheckout(renewCopy);
-			model.addAttribute("val2", "RenewalSuccess");
+		List<User> waitList=waitListService.findAllUsersForBook(bookId);
+		if(!waitList.isEmpty()){
+			waitListExists = true;
+			model.addAttribute("val2", "waitListExists");
+
+		}
+		else{
+			System.out.println(renewCopy);
+			Integer freq = renewCopy.getTimes();
+			if (freq >= 2) {
+				model.addAttribute("val2", "exceeded");
+			} else {
+				Date oldCheckoutDate = renewCopy.getCheckoutDate();
+				Date updatedCheckoutDate = DateUtils.addMonths(oldCheckoutDate, 1);
+				freq = freq + 1;
+				renewCopy.setTimes(freq);
+				renewCopy.setCheckoutDate(updatedCheckoutDate);
+				checkoutService.updateCheckout(renewCopy);
+				model.addAttribute("val2", "RenewalSuccess");
+			}
 		}
 
 		model.addAttribute("userid", user.getId());
