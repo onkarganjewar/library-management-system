@@ -7,9 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.UUID;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Before;
@@ -17,13 +14,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -48,21 +45,14 @@ public class LoginControllerTest {
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
 
-	@Autowired
-	MockHttpSession mockSession;
-
 	@Before
 	public void setup() {
 		this.springMvc = MockMvcBuilders.webAppContextSetup(wac).addFilters(springSecurityFilterChain)
 				.apply(SecurityMockMvcConfigurers.springSecurity()).build();
-
-		this.mockSession = new MockHttpSession(wac.getServletContext(), UUID.randomUUID().toString());
 	}
 
 	@Test
 	public void LoginTest() throws Exception {
-//				.param("email", "ganjewaronkar@gmail.com")
-
 		this.springMvc
 				.perform(post("/login")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -72,32 +62,27 @@ public class LoginControllerTest {
 				.accept(MediaType.ALL))
 				.andDo(print())
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrlPattern("/home*"))
+				.andExpect(redirectedUrlPattern("/librarian/home*"))
 				.andDo(print());
-
 	}
 
 	@Test
 	public void GET_SignUpTest() throws Exception {
-        this.springMvc.perform(get("/demo")
-        		.accept(MediaType.ALL)).andDo(print())
-        		.andExpect(status().isOk()).andDo(print());
+		 this.springMvc
+		 .perform(get("/signup").accept(MediaType.ALL)).andDo(print())
+		 .andExpect(MockMvcResultMatchers.status().isOk())
+		 .andExpect(MockMvcResultMatchers.view().name("signup"))
+		 .andDo(print());
 	}
 	
-	@Test
-	public void GET_BookInfoTest() throws Exception {
-        this.springMvc.perform(get("/bookInfo").param("isbn", "1591472741")
-        		.accept(MediaType.ALL)).andDo(print())
-        		.andExpect(status().isOk()).andDo(print());
-	}
-
 	@Test
 	public void POST_SignUpTest() throws Exception {
         this.springMvc
 		.perform(post("/signup")
 				.param("email", "ganjewaronkar@gmail.com")
 				.param("firstName", "onkar")
-				.param("lastName", "whatever").param("password", "123")
+				.param("lastName", "ganjewar")
+				.param("password", "123")
 				.param("uId", "456789").with(csrf())
 				.accept(MediaType.ALL))
 		.andDo(print()).andExpect(status().isOk());

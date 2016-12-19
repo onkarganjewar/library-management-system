@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +34,6 @@ import edu.sjsu.cmpe275.project.util.CustomTimeService;
 /**
  * @author Onkar Ganjewar
  */
-
 @Controller
 @RequestMapping("/librarian")
 public class LibrarianController {
@@ -64,16 +61,12 @@ public class LibrarianController {
 		List<Book> books = bookService.findAllBooks();
 		model.addAttribute("books", books);
 		String email_user = getPrincipal();
-		// TODO: Handle the condition if the user is anonymousUser
 		User currentuser = userService.findByEmail(email_user);
 		model.addAttribute("user", currentuser.getFirstName());
 		System.out.println(myTimeService.getDate());
 		return "admin";
 	}
 
-	
-
-		
 	/**
 	 * Renders the book registration page for the librarian.
 	 * @param model ModelMap holding the book data.
